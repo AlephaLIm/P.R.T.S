@@ -3,10 +3,10 @@ import uuid
 import datetime
 from typing import Optional
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, json
+from flask import Flask, request, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey
+from sqlalchemy import Integer, String, ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.utils import secure_filename
 
@@ -67,6 +67,33 @@ with app.app_context():
 def hello_world():
     return "<p>Hello, World!</p>"
 
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        new_guid = uuid.uuid4()
+        with app.app_context():
+            while db.session.execute(select(Client.guid).where(Client.guid == new_guid)).one_or_none() is not None:
+                new_guid = uuid.uuid4()
+                print(new_guid)
+        return jsonify(guid = new_guid)
+    
+    elif request.method == 'POST':
+        req_data = request.get_json()
+        if ('guid' in req_data) and ('hostname' in req_data) and ('ip_addr' in req_data):
+            guid = uuid.UUID(req_data['guid'])
+            hostname = req_data['hostname']
+            ip_addr = req_data['ip_addr']
+            date = datetime.datetime.now()
+            new_client = Client(guid=guid, hostname=hostname, ip_addr=ip_addr, date_registered=date)
+            if db.session.execute(select(Client.guid).where(Client.guid == guid)).one_or_none() is not None:
+                return "GUID already exists", 412
+            with app.app_context():
+                db.session.add(new_client)
+                db.session.commit()
+            return "Success", 201
+        else:
+            return "Missing Fields", 400
+    
 @app.route("/agent_trigger", methods=['POST'])
 def upload_file():
     if request.method == 'POST':
