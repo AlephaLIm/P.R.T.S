@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, render_template, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select
+from sqlalchemy import Integer, String, ForeignKey, select, update
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.utils import secure_filename
 
@@ -32,6 +32,7 @@ class Client(db.Model):
     hostname: Mapped[Optional[str]] = mapped_column(String(64))
     ip_addr: Mapped[Optional[str]] = mapped_column(String(15))
     date_registered: Mapped[datetime.datetime] = mapped_column(nullable=False)
+    last_modified: Mapped[datetime.datetime] = mapped_column(nullable=False)
     
 class Case_details(db.Model):
     __tablename__ = "case_details"
@@ -84,7 +85,7 @@ def register():
             hostname = req_data['hostname']
             ip_addr = req_data['ip_addr']
             date = datetime.datetime.now()
-            new_client = Client(guid=guid, hostname=hostname, ip_addr=ip_addr, date_registered=date)
+            new_client = Client(guid=guid, hostname=hostname, ip_addr=ip_addr, date_registered=date, last_modified=date)
             if db.session.execute(select(Client.guid).where(Client.guid == guid)).one_or_none() is not None:
                 return "GUID already exists", 412
             with app.app_context():
@@ -93,7 +94,27 @@ def register():
             return "Success", 201
         else:
             return "Missing Fields", 400
-    
+
+@app.route("/update", methods=['POST'])
+def update_details():
+    if request.method == 'POST':
+        req_data = request.get_json()
+        if 'guid' in req_data:
+            with app.app_context():
+                client = db.session.execute(select(Client.guid).where(Client.guid == uuid.UUID(req_data['guid']))).one_or_none()
+                if client is None:
+                    return "Client does not exist", 404
+                else:
+                    if 'hostname' in req_data:
+                        db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"hostname":req_data["hostname"]}])
+                    if 'ip_addr' in req_data:
+                        db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"ip_addr":req_data["ip_addr"]}])
+                    db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"last_modified":datetime.datetime.now()}])
+                    db.session.commit()
+            return "Success", 200
+        else:
+            return "No GUID provided", 400
+
 @app.route("/agent_trigger", methods=['POST'])
 def upload_file():
     if request.method == 'POST':
