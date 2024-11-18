@@ -3,7 +3,7 @@ import uuid
 import datetime
 from typing import Optional
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Integer, String, ForeignKey, select, update
@@ -65,8 +65,10 @@ with app.app_context():
     db.create_all()
 
 @app.route("/")
-def hello_world():
-    return "<p>Hello, World!</p>"
+def homepage():
+    return render_template('homepage.html',
+                           title="Home",
+                           page_css='css/homepage.css')
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
