@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Megrim&display=swap');
+
+#foot_box {
+    position: relative;
+    height: 210px;
+    background: linear-gradient(rgba(0, 0, 0, 0.40), rgba(0, 0, 0, 0.40)), url("../assets/bg_img.jpg"), no-repeat;
+    box-shadow: -3px 0 3px 3px #100720;
+    margin-top: 60px;
+}
+
+.footer_hr {
+    position: absolute;
+    left:0;
+    right:0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 95vw;
+    display: block;
+    color: darkgray;
+}
+
+.footer_link {
+    position: absolute;
+    text-align: center;
+    font-size: 18px;
+    width: 200px;
+    color: #ffee00;
+    display: block;
+    top: 40px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.foot_info {
+    color: #ffee00;
+}
+
+.info {
+    position: absolute;
+    text-align: center;
+    width: 50vw;
+    left: 0;
+    right: 0;
+    top: 40px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.devs {
+    position: absolute;
+    width: 300px;
+    left: 0;
+    right: 0;
+    top: 80px;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Megrim', 'cursive';
+    text-shadow: 1px 1px #ffee00;
+}
+
+.dev_label {
+    display: inline-block;
+    text-align: center;
+    margin-right: 5px;
+    vertical-align: top;
+}
+
+.dev_ppl {
+    display: inline-block;
+    text-align: start; 
+}
+
+@media  screen and (max-width: 500px) {
+    #foot_box {
+        height: 250px;
+    }
+    .devs {
+        top: 100px;
+    }  
+    .foot_info {
+        position: absolute;
+        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
+        left: -7vw;
+        right: 0;
+        top: 20px;
+    } 
+}
