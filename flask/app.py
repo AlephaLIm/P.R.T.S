@@ -1,12 +1,16 @@
 import os
 import uuid
 import datetime
+import redis
+import time
+import json
+import random
 from typing import Optional
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, jsonify, url_for
+from flask import Flask, request, render_template, jsonify, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select, update
+from sqlalchemy import Integer, String, ForeignKey, select, update, JSON
 from sqlalchemy.orm import Mapped, mapped_column
 from werkzeug.utils import secure_filename
 
@@ -17,6 +21,7 @@ db = SQLAlchemy(model_class=Base)
 load_dotenv()
 
 app = Flask(__name__)
+red = redis.StrictRedis()
 
 app.config['UPLOAD_FOLDER'] = './uploads'
 db_user = os.environ['DB_USER']
@@ -38,19 +43,8 @@ class Case_details(db.Model):
     __tablename__ = "case_details"
     cuid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     case_num: Mapped[int] = mapped_column(ForeignKey("cases.case_num"))
-    filename: Mapped[str] = mapped_column(String(128), nullable=False)
-    risk: Mapped[str] = mapped_column(String(64), nullable=False)
-    action: Mapped[str] = mapped_column(String(128), nullable=False)
-    risk_type: Mapped[str] = mapped_column(String(64), nullable=False)
-    logged_by: Mapped[str] = mapped_column(String(64), nullable=False)
-    location: Mapped[str] = mapped_column(String(255), nullable=False)
-    computer: Mapped[str] = mapped_column(String(64), nullable=False)
-    user: Mapped[str] = mapped_column(String(64), nullable=False)
-    status: Mapped[str] = mapped_column(String(64), nullable=False)
-    current_loc: Mapped[str] = mapped_column(String(255), nullable=False)
-    primary_action: Mapped[str] = mapped_column(String(128), nullable=False)
-    secondary_action: Mapped[str] = mapped_column(String(128), nullable=False)
-    description: Mapped[str] = mapped_column(String(255), nullable=False)
+    json_log: Mapped[JSON] = mapped_column(JSON, nullable=False)
+    transcript: Mapped[str] = mapped_column(String(255), nullable=False)
     video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     datetime_occured: Mapped[datetime.datetime] = mapped_column(nullable=False)
 
@@ -63,6 +57,20 @@ class Cases(db.Model):
 
 with app.app_context():
     db.create_all()
+
+def logdata_stream():
+    logdata_channel = red.pubsub(ignore_subscribe_messages=True)
+    logdata_channel.subscribe('logstream')
+    while True:
+        new_list = []
+        for i in range(10):
+            new_list.append(random.randint(0, 100))
+        red.publish('logstream', json.dumps({"data":f"{new_list}"}))
+        message = logdata_channel.get_message()
+        if message:
+            msg = dict(message)
+            yield f'data:{msg.get('data')}\n\n'
+        time.sleep(5)
 
 @app.route("/")
 def homepage():
@@ -131,3 +139,12 @@ def upload_file():
             mimetype='application/json'
         )
         return response
+
+@app.route("/datastream")
+def datastream():
+    return Response(logdata_stream(), mimetype="text/event-stream")
+
+
+if __name__ == '__main__':
+    app.debug = True
+    app.run(threaded=True)

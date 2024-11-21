@@ -46,6 +46,7 @@
     top: 40px;
     margin-left: auto;
     margin-right: auto;
+    color: white;
 }
 
 .devs {
@@ -77,14 +78,14 @@
         height: 250px;
     }
     .devs {
-        top: 100px;
+        top: 110px;
     }  
     .foot_info {
         position: absolute;
         text-align: center;
         margin-left: auto;
         margin-right: auto;
-        left: -7vw;
+        left: -10vw;
         right: 0;
         top: 20px;
     } 

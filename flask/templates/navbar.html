@@ -13,13 +13,15 @@
     {% block style %}{% endblock %}
 {% endblock head %}
 
+{% block script %}{% endblock script %}
+
 {% block header %}
 <div class="container-fluid", id="nav-wrapper">
     <nav class="navbar navbar-expand-lg bg-dark navbar-dark" id="logo-wrapper">
         <div class="header-logo">
             <a class="navbar-brand" href="#">
                 <img src="{{  url_for('static', filename='assets/suisei_logo.png') }}" alt="Logo">
-                <h1>Suisei<br>Case Files</h1>
+                <h1>Hoshimachi<br>Case Files</h1>
             </a> 
         </div>
     </nav>
