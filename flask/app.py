@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Integer, String, ForeignKey, select, update, JSON
 from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
 
 class Base(DeclarativeBase):
@@ -36,41 +37,41 @@ class Client(db.Model):
     guid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     hostname: Mapped[Optional[str]] = mapped_column(String(64))
     ip_addr: Mapped[Optional[str]] = mapped_column(String(15))
+    status: Mapped[str] = mapped_column(String(15), nullable=False)
     date_registered: Mapped[datetime.datetime] = mapped_column(nullable=False)
     last_modified: Mapped[datetime.datetime] = mapped_column(nullable=False)
     
-class Case_details(db.Model):
-    __tablename__ = "case_details"
-    cuid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    case_num: Mapped[int] = mapped_column(ForeignKey("cases.case_num"))
-    json_log: Mapped[JSON] = mapped_column(JSON, nullable=False)
-    transcript: Mapped[str] = mapped_column(String(255), nullable=False)
-    video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
-    datetime_occured: Mapped[datetime.datetime] = mapped_column(nullable=False)
-
 class Cases(db.Model):
     __tablename__ = "cases"
-    case_num: Mapped[int] = mapped_column(primary_key=True)
+    case_id: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    case_num: Mapped[int] = mapped_column(unique=True)
     client: Mapped[uuid.UUID] = mapped_column(ForeignKey("client.guid"))
-    case_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("case_details.cuid"))
+    json_log: Mapped[JSON] = mapped_column(JSON, nullable=False)
+    transcript: Mapped[str] = mapped_column(String(255), nullable=True)
+    video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
     datetime_created: Mapped[datetime.datetime] = mapped_column(nullable=False)
+    datetime_resolved: Mapped[datetime.datetime] = mapped_column(nullable=True)
 
 with app.app_context():
     db.create_all()
+
+engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}")
+with engine.connect() as connection:
+    connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
 
 def logdata_stream():
     logdata_channel = red.pubsub(ignore_subscribe_messages=True)
     logdata_channel.subscribe('logstream')
     while True:
-        new_list = []
-        for i in range(10):
-            new_list.append(random.randint(0, 100))
-        red.publish('logstream', json.dumps({"data":f"{new_list}"}))
+        logtype = []
+        for i in range(3):
+            logtype.append(random.randint(2000, 20000))
+        red.publish('logstream', json.dumps({"data":f"{random.randint(0,100)}", "logtype":logtype}))
         message = logdata_channel.get_message()
         if message:
             msg = dict(message)
             yield f'data:{msg.get('data')}\n\n'
-        time.sleep(5)
+        time.sleep(3)
 
 @app.route("/")
 def homepage():
@@ -95,7 +96,7 @@ def register():
             hostname = req_data['hostname']
             ip_addr = req_data['ip_addr']
             date = datetime.datetime.now()
-            new_client = Client(guid=guid, hostname=hostname, ip_addr=ip_addr, date_registered=date, last_modified=date)
+            new_client = Client(guid=guid, hostname=hostname, ip_addr=ip_addr, status='Healthy', date_registered=date, last_modified=date)
             if db.session.execute(select(Client.guid).where(Client.guid == guid)).one_or_none() is not None:
                 return "GUID already exists", 412
             with app.app_context():
@@ -128,22 +129,31 @@ def update_details():
 @app.route("/agent_trigger", methods=['POST'])
 def upload_file():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            return 
-        
-        file = request.files['file']
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], name=filename))
-        response = app.response_class(
-            status=200,
-            mimetype='application/json'
-        )
-        return response
+        if 'guid' not in request.args:
+            return "Invalid request", 400
+        elif 'file' not in request.files:
+            return "No files provided", 400
+        elif 'json' not in request.files:
+            return "No json body provided", 400
+        client_id = request.args.get('guid')
+        post_json = json.load(request.files['json'])
+        post_file = request.files['file']
+        filename = secure_filename(post_file.filename)
+        post_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        with app.app_context():
+            client = db.session.execute(select(Client.guid).where(Client.guid == uuid.UUID(client_id))).one_or_none()
+            if client is None:
+                return "Client does not exist", 404
+            new_cuid = uuid.uuid4()
+            datetime_now=datetime.datetime.now()
+            new_case = Cases(case_id=new_cuid, client=uuid.UUID(client_id), json_log=post_json, video_file=os.path.join(app.config['UPLOAD_FOLDER'], filename), datetime_created=datetime_now)
+            db.session.add(new_case)
+            db.session.commit()
+        return "Success", 200
 
 @app.route("/datastream")
 def datastream():
     return Response(logdata_stream(), mimetype="text/event-stream")
-
 
 if __name__ == '__main__':
     app.debug = True
