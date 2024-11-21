@@ -7,22 +7,18 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='/js/logstream.js') }}"></script>
 {% endblock script %}
 
 {% block body %}
 <main>
-    <p id="test">Hello World</p>
+    <div id="main_div">
+        <div class="linegraph">
+            <canvas id="logstream"></canvas>
+        </div>
+        <div class="piechart">
+            <canvas id="piechart"></canvas>
+        </div>
+    </div>
 </main>
-<script>
-$(document).ready(function(){
-    var source = new EventSource('/datastream');
-    source.onmessage = function(event) {
-        console.log(event.data);
-        var e = JSON.parse(event.data.substring(2, event.data.length - 1));
-        var test = JSON.parse(e.data)
-        console.log(typeof test[1]);
-        document.getElementById('test').innerHTML= e.data;
-    }
-});
-</script>
 {% endblock body %}

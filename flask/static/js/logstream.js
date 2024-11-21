@@ -1,8 +1,9 @@
 $("document").ready(function(){
-    let labels = ['21-11-2024 18:52:57','21-11-2024 18:53:02','21-11-2024 18:53:07','21-11-2024 18:53:12','21-11-2024 18:53:17','21-11-2024 18:53:22','21-11-2024 18:53:27','21-11-2024 18:53:32','21-11-2024 18:53:37']
-    let dataset = [38, 43, 31, 42, 95, 97, 10, 95, 78, 21]
+    const d = new Date().toLocaleTimeString();
+    let label = Array(10).fill(d)
+    let dataset = Array(10).fill(0)
     var data = {
-        labels: labels,
+        labels: label,
         datasets: [{
             label: 'Log Ingest Rate',
             data: dataset,
@@ -16,5 +17,43 @@ $("document").ready(function(){
         data: data
     }
     
-    var linegraph = new Chart(data, config)
+    var linegraph = new Chart(document.getElementById('logstream'), config)
+
+    let pielabel = ['WinEventLog:Security', 'WinEventLog:Application', 'WinEventLog:System']
+    let piedataset = [16593, 1068, 1063]
+    var piedata = {
+        labels: pielabel,
+        datasets: [{
+            label: 'Log Ingest Type',
+            data: piedataset,
+            backgroundColor: [
+                'rgb(7, 7, 232)',
+                'rgb(232, 7, 56)',
+                'rgb(232, 228, 7)'
+            ],
+            hoverOffset: 5
+        }]
+    }
+
+    let pieconfig = {
+        type: 'doughnut',
+        data: piedata
+    }
+
+    var piechart = new Chart(document.getElementById('piechart'), pieconfig)
+
+    var source = new EventSource('/datastream');
+    source.onmessage = function(event) {
+        var e = JSON.parse(event.data.substring(2, event.data.length - 1));
+        var newdata = JSON.parse(e.data);
+        let newdatetime = new Date().toLocaleTimeString();
+        linegraph.data.labels.shift();
+        linegraph.data.labels.push(newdatetime);
+        linegraph.data.datasets[0].data.shift();
+        linegraph.data.datasets[0].data.push(newdata);
+        linegraph.update();
+
+        piechart.data.datasets[0].data = e.logtype;
+        piechart.update();
+    }
 });
