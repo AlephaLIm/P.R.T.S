@@ -1,3 +1,6 @@
+#pyvenv.cfg
+pyvenv.cfg
+
 # Logs
 logs
 *.log
