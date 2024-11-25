@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 from flask import Flask, request, render_template, jsonify, url_for, Response
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select, update, JSON
+from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
@@ -55,9 +55,9 @@ class Cases(db.Model):
 with app.app_context():
     db.create_all()
 
-engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}")
-with engine.connect() as connection:
-    connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
+# engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}")
+# with engine.connect() as connection:
+#     connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
 
 def logdata_stream():
     logdata_channel = red.pubsub(ignore_subscribe_messages=True)
@@ -72,6 +72,43 @@ def logdata_stream():
             msg = dict(message)
             yield f'data:{msg.get('data')}\n\n'
         time.sleep(3)
+
+def get_listresponse():
+    channel = red.pubsub(ignore_subscribe_messages=True)
+    channel.subscribe('case_client')
+    while True:
+        message = channel.get_message()
+        if message:
+            msg = dict(message)
+            yield f'data:{msg.get('data')}\n\n'
+        time.sleep(0.01)
+
+def generate_list():
+    with app.app_context():
+        cases = db.session.execute(select(Cases).order_by(Cases.datetime_created.desc(), Cases.datetime_resolved.desc())).fetchmany(10)
+        clients = db.session.execute(select(Client).order_by(Client.status.asc(), Client.last_modified.desc())).fetchmany(10)
+    case_data = []
+    client_data = []
+    if cases is not None:
+        for case in cases:
+            if case[0].datetime_resolved is None:
+                resolved = 'None'
+            else:
+                resolved = case[0].datetime_resolved.strftime(r"%d-%m-%Y %H:%M:%S")
+            case_data.append({"casenum":case[0].case_num,"cid":str(case[0].case_id),"guid":str(case[0].client),"created":case[0].datetime_created.strftime(r"%d-%m-%Y %H:%M:%S"), "resolved":resolved})
+    else:
+        case_data.append('null')
+    if clients is not None:
+        for client in clients:
+            client_data.append({"guid":str(client[0].guid),"hostname":client[0].hostname,"ip":client[0].ip_addr,"registered":client[0].date_registered.strftime(r"%d-%m-%Y %H:%M:%S"),"last_m":client[0].last_modified.strftime(r"%d-%m-%Y %H:%M:%S"),"status":client[0].status})
+    else:
+        client_data.append('null')
+    return case_data, client_data
+
+def publish_newlist():
+    case_data, client_data = generate_list()
+    time.sleep(0.5)
+    red.publish('case_client', json.dumps({"cases":case_data, "clients":client_data}))
 
 @app.route("/")
 def homepage():
@@ -102,6 +139,7 @@ def register():
             with app.app_context():
                 db.session.add(new_client)
                 db.session.commit()
+            publish_newlist()
             return "Success", 201
         else:
             return "Missing Fields", 400
@@ -122,6 +160,7 @@ def update_details():
                         db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"ip_addr":req_data["ip_addr"]}])
                     db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"last_modified":datetime.datetime.now()}])
                     db.session.commit()
+            publish_newlist()
             return "Success", 200
         else:
             return "No GUID provided", 400
@@ -148,12 +187,23 @@ def upload_file():
             datetime_now=datetime.datetime.now()
             new_case = Cases(case_id=new_cuid, client=uuid.UUID(client_id), json_log=post_json, video_file=os.path.join(app.config['UPLOAD_FOLDER'], filename), datetime_created=datetime_now)
             db.session.add(new_case)
+            db.session.execute(update(Client),[{"guid":uuid.UUID(client_id),"status":"Affected"}])
             db.session.commit()
+        publish_newlist()
         return "Success", 200
 
 @app.route("/datastream")
 def datastream():
     return Response(logdata_stream(), mimetype="text/event-stream")
+
+@app.route("/casestream")
+def casestream():
+    return Response(get_listresponse(), mimetype="text/event-stream")
+
+@app.route("/initialize")
+def initialize():
+    publish_newlist()
+    return "Success", 200
 
 if __name__ == '__main__':
     app.debug = True
