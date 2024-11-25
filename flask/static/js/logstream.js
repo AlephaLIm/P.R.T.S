@@ -56,4 +56,48 @@ $("document").ready(function(){
         piechart.data.datasets[0].data = e.logtype;
         piechart.update();
     }
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.open('GET', '/initialize', true);
+    xhttp.send();
+    
+    var listsrc = new EventSource('/casestream');
+    listsrc.onmessage = function(event) {
+        var e = JSON.parse(event.data.substring(2, event.data.length - 1));
+        const casetable = e.cases.map(obj => {
+            let caseitem = document.querySelector('#case_template').innerHTML;
+            caseitem = caseitem.replace('{case_num}', obj.casenum);
+            caseitem = caseitem.replace('{caseid}', obj.cid);
+            caseitem = caseitem.replace('{client}', obj.guid);
+            caseitem = caseitem.replace('{created}', obj.created);
+            caseitem = caseitem.replace('{resolved}', obj.resolved);
+            return caseitem;
+        });
+
+        const clienttable = e.clients.map(obj => {
+            let clientitem = document.querySelector('#client_template').innerHTML;
+            clientitem = clientitem.replace('{guid}', obj.guid);
+            clientitem = clientitem.replace('{hostname}', obj.hostname);
+            clientitem = clientitem.replace('{ip}', obj.ip);
+            clientitem = clientitem.replace('{registered}', obj.registered);
+            clientitem = clientitem.replace('{last_m}', obj.last_m);
+            clientitem = clientitem.replace('{status}', obj.status);
+            return clientitem;
+        });
+        document.querySelector('#case').innerHTML = casetable.join('');
+        document.querySelector('#client').innerHTML = clienttable.join('');
+
+        let clientrows = document.querySelectorAll('.client_row');
+        for (let row of clientrows) {
+            if (row.querySelector('td:nth-child(6)').innerText === 'Healthy') {
+                row.querySelector('td:nth-child(6)').style.backgroundColor = '#1cbd00';
+                row.querySelector('td:nth-child(6)').style.color = 'black';
+            }
+            else if (row.querySelector('td:nth-child(6)').innerText === 'Affected') {
+                row.querySelector('td:nth-child(6)').style.backgroundColor = '#bd0d00';
+            }
+        }
+    };
+
+
 });

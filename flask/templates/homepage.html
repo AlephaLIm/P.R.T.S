@@ -13,11 +13,71 @@
 {% block body %}
 <main>
     <div id="main_div">
-        <div class="linegraph">
-            <canvas id="logstream"></canvas>
+        <h1>Log Statistics</h3>
+        <hr>
+        <div id="graphs">
+            <div class="graph_holder">
+                <div class="linegraph">
+                    <canvas id="logstream"></canvas>
+                </div>    
+            </div>
+            <div class="graph_holder">
+                <div class="piechart">
+                    <canvas id="piechart"></canvas>
+                </div>        
+            </div>
         </div>
-        <div class="piechart">
-            <canvas id="piechart"></canvas>
+        <h1>Client & Case Status</h1>
+        <hr>
+        <div id="tables">
+            <table class="clients">
+                <thead>
+                    <th style="width: max(12vw, 91px);">System</th>
+                    <th style="width: max(5vw, 46px)">Hostname</th>
+                    <th style="width: max(6.5vw, 60px)">IP Address</th>
+                    <th style="width: max(5.5vw, 61px)">Registered</th>
+                    <th style="width: max(5.5vw, 61px)">Last Modified</th>
+                    <th style="width: max(7.5vw, 71px)">Status</th>
+                </thead>
+                <tbody id="client">
+                    <tr>
+                        <td class="client_empty">No Clients Registered</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="cases">
+                <thead>
+                    <th style="width: max(3vw, 40px);">Case</th>
+                    <th style="width: max(14.5vw, 90px);">CaseID</th>
+                    <th style="width: max(14.5vw, 90px);">Client</th>
+                    <th style="width: max(8vw, 85px);">Datetime Created</th>
+                    <th style="width: max(8vw, 85px);">Datetime Resolved</th>
+                </thead>
+                <tbody id="case">
+                    <tr>
+                        <td class="case_empty">No Cases Retrieved</td>
+                    </tr>
+                </tbody>
+            </table>
+            <template id="case_template">
+                <tr class="case_row">
+                    <td style="width: max(3vw, 40px);">{case_num}</td>
+                    <td style="width: max(14.5vw, 90px);">{caseid}</td>
+                    <td style="width: max(14.5vw, 90px);">{client}</td>
+                    <td style="width: max(8vw, 84px);">{created}</td>
+                    <td style="width: max(8vw, 84px);">{resolved}</td>
+                </tr>
+            </template>
+            <template id="client_template">
+                <tr class="client_row">
+                    <td style="width: max(12vw, 91px);">{guid}</td>
+                    <td style="width: max(5vw, 46px);">{hostname}</td>
+                    <td style="width: max(6.5vw, 60px);">{ip}</td>
+                    <td style="width: max(5.5vw, 61px);">{registered}</td>
+                    <td style="width: max(5.5vw, 61px);">{last_m}</td>
+                    <td style="width: max(7.5vw, 69px);">{status}</td>
+                </tr>
+            </template>
         </div>
     </div>
 </main>
