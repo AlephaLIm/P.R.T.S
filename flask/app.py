@@ -55,9 +55,11 @@ class Cases(db.Model):
 with app.app_context():
     db.create_all()
 
-# engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}")
-# with engine.connect() as connection:
-#     connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
+engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}")
+with engine.connect() as connection:
+    result = connection.execute(text('select extra FROM information_schema.columns where table_name = "cases" and column_name = "case_num"')).scalar_one()
+    if result == '':
+        connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
 
 def logdata_stream():
     logdata_channel = red.pubsub(ignore_subscribe_messages=True)
