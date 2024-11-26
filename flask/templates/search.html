@@ -1,0 +1,43 @@
+{% extends 'navbar.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,1,0" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css" integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock style %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='/js/search.js') }}"></script>
+{% endblock script %}
+
+{% block body %}
+<main>
+    <div id="main_div">
+        <h1>Search</h1>
+        <hr>
+        <div id="searchbar">
+            <div class="searchfields">
+                <div class="dropdown">
+                    <button class="btn btn-secondary" type="button" id="typeSelector" data-bs-toggle="dropdown" aria-expanded="false">Cases</button>
+                    <div class="dropdown-menu dropdown-menu-dark" aria-labelledby="typeSelector">
+                        <a class="dropdown-item" id="cases">Cases</a>
+                        <a class="dropdown-item" id="clients">Clients</a>
+                    </div>
+                </div>
+                <form method="post" action="/search">
+                    <select id="fields" name="field"></select>
+                    <template id="select_field">
+                        <option value={value}>{field}</option>  
+                    </template>
+                    <input type="text" id="search" name="search" placeholder="Search..."/>
+                    <button class="search-btn" type="submit"><i class="fa fa-search"></i></button>
+                    <div id="time">
+                        <input type="datetime-local" id="start-time" name="start-time"/>
+                        <input type="datetime-local" id="end-time" name="end-time"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock body %}

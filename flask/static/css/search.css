@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Megrim&display=swap');
+
+body {
+    min-height: 100vh;
+    max-width: 100vw;
+    display: grid;
+    margin: 0;
+    grid-template-rows: auto 1fr auto;
+    background-color: #18181c;
+}
+
+#main_div {
+    margin-top: 20px;
+    padding-bottom: 30px;
+    width: 97vw;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 10px;
+    background-color: #171720;
+    box-shadow: 0 0 3px 1px #05c9f5;
+}
+
+h1 {
+    font-family: 'Megrim', 'cursive';
+    text-align: center;
+    padding-top: 100px;
+    font-weight: 500;
+    color: whitesmoke;
+}
+
+hr {
+    width: 90vw;
+    justify-self: center;
+    color: whitesmoke;
+}
+
+#searchbar {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.searchfields {
+    display: block;
+}
+
+#searchbar #typeSelector {
+    width: 70vw;
+    height: 40px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: black;
+    background-color: #05c9f5;
+    border: none;
+}
+
+#searchbar #typeSelector:hover, #searchbar #typeSelector:focus-within {
+    background-color: #18181c;
+    color: #deb202;
+    box-shadow: 0 0 3px 1px #05c9f5;
+}
+
+#searchbar .dropdown-menu {
+    width: 70vw;
+    text-align: center;
+    background-color: #120d21;
+    box-shadow: 0 0 3px 1px #05c9f5;
+}
+
+#searchbar .dropdown-menu a {
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#searchbar .dropdown-menu a:hover {
+    background-color: #18181c;
+    color:#deb202;
+    border-bottom:1px solid #05c9f5;
+    border-top: 1px solid #05c9f5;
+}
+
+#searchbar form #fields {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 80px;
+    border-radius: 5px;
+    height: 43px;
+    text-align: start;
+    padding-left: 10px;
+    outline: none;
+    border: none;
+    color: #05c9f5;
+    background-color: #333232;
+}
+
+#searchbar form #fields:hover {
+    background-color: #18181c;
+    color:#deb202;
+    box-shadow: 1px 1px 1px 1px #05c9f5;
+}
+
+#searchbar form #fields::-ms-expand {
+    display: none;
+}
+
+#searchbar form #search {
+    height: 40px;
+    background-color: #18181c;
+    box-shadow: 0px 0px 2px 1px #05c9f5;
+    color:#05c9f5;
+    width: 50vw;
+    border: none;
+}
+
+#searchbar form #search::placeholder {
+    color: #05c9f5;
+    padding-left: 10px;
+}
+
+#searchbar form .search-btn {
+    height: 43px;
+    width: 43px;
+    border: none;
+    background-color: #05c9f5;
+    border-radius: 5px;
+}
+
+#searchbar form .search-btn:hover {
+    background-color: #18181c;
+    color:#deb202;
+    box-shadow: 1px 1px 1px 1px #05c9f5;
+}
+
+#searchbar form #time {
+    float: right;
+}
+
+#searchbar form #start-time, #searchbar form #end-time {
+    width: 6.2vw;
+    height: 43px;
+    border-radius: 3px;
+    border: none;
+    padding-left: 5.5px;
+    padding-right: 1px;
+    background-color: #18181c;
+    color: #deb202;
+    color-scheme: dark;
+}
+
+@media screen and (max-width: 1700px) {
+    #searchbar form #time {
+        float: none;
+    }
+    
+    #searchbar form #start-time, #searchbar form #end-time {
+        width: 35vw;
+    }
+}
+
+@media screen and (max-width: 500px) {
+
+    #searchbar .dropdown-menu, #searchbar #typeSelector {
+        width: calc(40vw + 130px);
+    }
+    #searchbar form #search {
+        width: 40vw;
+    }    
+
+}
