@@ -77,14 +77,19 @@ header {
 #Navlinks .nav-link {
     display: block;
     padding-right: 40px;
+    font-size: large;
 }  
 
 #Navlinks .nav-link:hover p {
-    text-shadow: 0 0 7px #3D087B;
+    text-shadow: 0 0 7px #deb202;
+    color: #2b2b2b;
+    font-weight: bold;
 }
 
 #Navlinks .nav-link:hover span {
-    text-shadow: 0 0 7px #3D087B;
+    text-shadow: 0 0 7px #deb202;
+    color: #2b2b2b;
+    font-weight: bold;
 }
 
 .active p {

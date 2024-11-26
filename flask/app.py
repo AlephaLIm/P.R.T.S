@@ -118,6 +118,15 @@ def homepage():
                            title="Home",
                            page_css='css/homepage.css')
 
+@app.route("/search", methods=['GET', 'POST'])
+def search():
+    if request.method == 'GET':
+        return render_template('search.html',
+                               title="Search Cases & Clients",
+                               page_css='css/search.css')
+    elif request.method == 'POST':
+        return f"{request.form.get('field')}, {request.form.get('search')}, {request.form}"
+    
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':

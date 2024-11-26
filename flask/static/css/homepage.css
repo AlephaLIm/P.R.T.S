@@ -25,11 +25,13 @@ h1 {
     margin-left: 90px;
     padding-top: 50px;
     font-weight: 500;
+    color: whitesmoke;
 }
 
 hr {
     width: 90vw;
     justify-self: center;
+    color: whitesmoke;
 }
 
 #graphs, #tables {
