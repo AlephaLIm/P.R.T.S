@@ -24,7 +24,7 @@
                         <a class="dropdown-item" id="clients">Clients</a>
                     </div>
                 </div>
-                <form method="post" action="/search">
+                <form id="searchform" method="post" action="/search">
                     <select id="fields" name="field"></select>
                     <template id="select_field">
                         <option value={value}>{field}</option>  
@@ -32,11 +32,66 @@
                     <input type="text" id="search" name="search" placeholder="Search..."/>
                     <button class="search-btn" type="submit"><i class="fa fa-search"></i></button>
                     <div id="time">
+                        <select id="timefield" name="timefield"></select>
                         <input type="datetime-local" id="start-time" name="start-time"/>
                         <input type="datetime-local" id="end-time" name="end-time"/>
                     </div>
                 </form>
             </div>
+        </div>
+        <div id="tables">
+            <div id="table_holder"></div>
+            <template id="cases_template">
+                <table class="cases">
+                    <thead>
+                        <th style="width: 20vw;">Case ID</th>
+                        <th style="width: 20vw;">Client ID</th>
+                        <th class="casenum">Case No.</th>
+                        <th style="width: 10vw;">Video File</th>
+                        <th class="created">DateTime Created</th>
+                        <th class="resolved">DateTime Resolved</th>
+                    </thead>
+                    <tbody class="case_tbody"></tbody>
+                </table>
+            </template>
+            <template id="case_row_temp">
+                <tr>
+                    <td style="width: 20vw;">{case_id}</td>
+                    <td style="width: 20vw;">{client}</td>
+                    <td class="casenum">{case_num}</td>
+                    <td style="width: 10vw;">{video_file}</td>
+                    <td class="created">{datetime_created}</td>
+                    <td class="resolved">{datetime_resolved}</td>
+                </tr>
+            </template>
+            <template id="clients_template">
+                <table class="clients">
+                    <thead>
+                        <th style="width: 20vw;">Client ID</th>
+                        <th class="client_major">Hostname</th>
+                        <th class="client_major">IP Address</th>
+                        <th class="client_major">DateTime Registered</th>
+                        <th class="client_major">Last Modified</th>
+                        <th class="client_minor">Status</th>
+                    </thead>
+                    <tbody class="client_tbody"></tbody>
+                </table>
+            </template>
+            <template id="client_row_temp">
+                <tr>
+                    <td style="width: 20vw;">{guid}</td>
+                    <td class="client_major">{hostname}</td>
+                    <td class="client_major">{ip_addr}</td>
+                    <td class="client_major">{date_registered}</td>
+                    <td class="client_major">{last_modified}</td>
+                    <td class="client_minor">{status}</td>
+                </tr>
+            </template>
+            <template id="blank">
+                <tr id="blank_temp">
+                    <td class="blank">Sorry, there is no results in {table}. Would you like to try a different query?</td>
+                </tr>
+            </template>
         </div>
     </div>
 </main>

@@ -60,7 +60,7 @@ $("document").ready(function(){
     const xhttp = new XMLHttpRequest();
     xhttp.open('GET', '/initialize', true);
     xhttp.send();
-    
+
     var listsrc = new EventSource('/casestream');
     listsrc.onmessage = function(event) {
         var e = JSON.parse(event.data.substring(2, event.data.length - 1));
@@ -86,7 +86,7 @@ $("document").ready(function(){
         });
         document.querySelector('#case').innerHTML = casetable.join('');
         document.querySelector('#client').innerHTML = clienttable.join('');
-
+        
         let clientrows = document.querySelectorAll('.client_row');
         for (let row of clientrows) {
             if (row.querySelector('td:nth-child(6)').innerText === 'Healthy') {
@@ -97,6 +97,18 @@ $("document").ready(function(){
                 row.querySelector('td:nth-child(6)').style.backgroundColor = '#bd0d00';
             }
         }
+
+        $('tbody tr').each(function() {
+            $(this).hide();
+        })
+        
+        $('.client_row').each(function(i) {
+            $(this).delay(200*i).fadeIn(200);
+        });
+
+        $('.case_row').each(function(i) {
+            $(this).delay(200*i).fadeIn(200);
+        });
     };
 
 

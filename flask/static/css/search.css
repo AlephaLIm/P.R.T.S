@@ -81,27 +81,31 @@ hr {
     border-top: 1px solid #05c9f5;
 }
 
-#searchbar form #fields {
+#searchbar form #fields, #searchbar form #timefield {
     -webkit-appearance: none;
     -moz-appearance: none;
-    width: 80px;
+    width: 83px;
     border-radius: 5px;
     height: 43px;
     text-align: start;
-    padding-left: 10px;
+    padding-left: 8px;
     outline: none;
     border: none;
     color: #05c9f5;
     background-color: #333232;
 }
+#searchbar form #timefield {
+    width: 80px;
+    margin-left: 3px;
+}
 
-#searchbar form #fields:hover {
+#searchbar form #fields:hover, #searchbar form #timefield:hover {
     background-color: #18181c;
     color:#deb202;
     box-shadow: 1px 1px 1px 1px #05c9f5;
 }
 
-#searchbar form #fields::-ms-expand {
+#searchbar form #fields::-ms-expand, #searchbar form #timefield::-ms-expand {
     display: none;
 }
 
@@ -110,13 +114,13 @@ hr {
     background-color: #18181c;
     box-shadow: 0px 0px 2px 1px #05c9f5;
     color:#05c9f5;
-    width: 50vw;
+    width: calc(50vw - 83px);
     border: none;
+    padding-left: 10px;
 }
 
 #searchbar form #search::placeholder {
     color: #05c9f5;
-    padding-left: 10px;
 }
 
 #searchbar form .search-btn {
@@ -147,25 +151,171 @@ hr {
     background-color: #18181c;
     color: #deb202;
     color-scheme: dark;
+    box-shadow: 0 0 2px 1px #05c9f5;
+}
+
+#tables {
+    margin-top: 70px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+#tables table {
+    width: calc(80vw + 2px);
+    margin-bottom: 100px;
+}
+
+#tables table thead, #tables table tbody {
+    display: block;
+    border-left: 1px solid #3a7da1;
+    border-right: 1px solid #3a7da1;
+}
+
+#tables table thead th {
+    padding-left: 0.7vw;
+    height: 60px;
+    background-color: #000000;
+    color: #cfc402;
+    border-top: 1px solid #3a7da1;
+    border-bottom: 1px solid #3a7da1;
+}
+
+#tables table tbody {
+    max-height: 500px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+}
+
+#tables table tbody::-webkit-scrollbar {
+    display: none;
+}
+
+#tables .cases .casenum {
+    width: 5vw;
+}
+
+#tables .cases .resolved, #tables .cases .created, #tables .clients .client_major {
+    width: 12.5vw;
+}
+
+#tables .clients .client_minor {
+    width: 10vw;
+}
+
+#tables table tbody td {
+    padding-left: 0.7vw;
+    border-bottom: 1px solid #3a7da1;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-top: 1.2vh;
+    height: 50px;
+}
+
+.cases tbody tr:nth-child(even), .clients tbody tr:nth-child(even) {
+    background-color: #27ccdb;
+}
+
+.cases tbody tr:nth-child(odd), .clients tbody tr:nth-child(odd) {
+    background-color: #200f27;
+}
+
+.cases tbody tr:nth-child(even) td, .clients tbody tr:nth-child(even) td {
+    color: black;
+    font-weight: 600;
+}
+
+.cases tbody td, .clients tbody td {
+    color: whitesmoke;
+}
+
+
+
+#blank_temp .blank {
+    width: calc(80vw + 2px);
+    height: 50vw; 
+    max-height: 500px;
+    padding-top: min(20vw, 250px);
+    padding-left: 20px;
+    padding-right: 20px;
+    overflow: auto;
+    white-space: wrap;
+    text-align: center;
+    background-color: #323333; 
+    font-size: larger;
+    box-shadow: 0 0 2px 2px #191a1c;
+    border: none;
+    border-bottom: 1px solid #3a7da1;
 }
 
 @media screen and (max-width: 1700px) {
     #searchbar form #time {
         float: none;
     }
-    
-    #searchbar form #start-time, #searchbar form #end-time {
-        width: 35vw;
+
+    #searchbar form #timefield {
+        width: 83px;
+        margin-left: 0;
     }
+
+    #searchbar form #start-time, #searchbar form #end-time {
+        width: calc(35vw - 45.5px);
+        margin-top: 10px;
+    }
+    #searchbar form #search {
+        width: calc(70vw - 133px);
+    }   
 }
 
 @media screen and (max-width: 500px) {
 
     #searchbar .dropdown-menu, #searchbar #typeSelector {
-        width: calc(40vw + 130px);
+        width: calc(40vw + 133px);
     }
     #searchbar form #search {
         width: 40vw;
     }    
 
+    #searchbar form #start-time, #searchbar form #end-time {
+        width: calc(20vw + 21px)
+    }
+    #tables table, #blank_temp .blank {
+        width: calc(90vw + 2px);
+        font-size: 0.75rem;
+    }
+
+    #tables table thead th{
+        height: 50px;
+    }
+
+    #tables table thead th{
+        padding-left: 1.2vw;
+        padding-right: 0.5vw;
+    }
+
+    #tables table tbody {
+        max-height: 400px;
+    }
+
+    #tables .cases .casenum {
+        width: 8vw;
+    }
+
+    #tables .cases .resolved, #tables .cases .created {
+        width: 16vw;
+    }
+
+    #tables .clients .client_major {
+        width: 14.5vw;
+    }
+
+    #tables .clients .client_minor {
+        width: 12vw;
+    } 
+
+    #tables table tbody td {
+        height: 40px;
+    }
 }
