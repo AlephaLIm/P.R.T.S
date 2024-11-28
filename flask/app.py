@@ -128,14 +128,25 @@ def search():
         fields = {"Case ID":"case_id", "Case No.":"case_num", "Client ID":"client", "System ID":"guid", "Hostname":"hostname", "IP Address":"ip_addr", "Status":"status"}
         time_fields = {"Created":"datetime_created", "Resolved":"datetime_resolved", "Register":"date_registered", "Modified":"last_modified"}
         table = request.form.get('type')
-        print(table)   
+        restrict_by_time = True
+        secondary_info = False
         statement = f' from {db_name}.{table}'
-        if request.form.get('search') != '' and (request.form.get('field') in fields.keys()):
+        if 'guid' in request.form.keys():
+            table_map = {'cases':'client', 'client':'guid'}
+            table_field = table_map.get(table)
+            statement += f' where {table_field} = :term '
+            restrict_by_time = False
+            secondary_info = True
+        elif request.form.get('search') != '' and (request.form.get('field') in fields.keys()):
             statement += f' where {fields[request.form.get("field")]} like :term and'
-        if request.form.get("timefield") in time_fields:
+        if request.form.get("timefield") in time_fields and restrict_by_time:
             if 'where' not in statement:
                 statement += ' where'
-            statement += f' {time_fields[request.form.get("timefield")]} between :start and :end'
+            print(request.form.get('start-time') == '')
+            if request.form.get('start-time') == '' or request.form.get('end-time') == '':
+                statement += f' {time_fields[request.form.get("timefield")]} is null'
+            else:
+                statement += f' {time_fields[request.form.get("timefield")]} between :start and :end'
         if table == 'cases':
             statement = 'select *, cast(datetime_created as char) as datetime_created, cast(datetime_resolved as char) as datetime_resolved' + statement
             query = text(statement + ' order by datetime_resolved is null, datetime_created desc, datetime_resolved desc')
@@ -143,17 +154,26 @@ def search():
             statement = 'select *, cast(date_registered as char) as date_registered, cast(last_modified as char) as last_modified' + statement
             query = text(statement + ' order by status asc, last_modified desc')
         with app.app_context():
-            sanitized = '%' + request.form.get('search') + '%'
-            if request.form.get('field') in ["Case ID", "System ID", "Client ID"]:
-                sanitized = sanitized.replace('-', '')
-            print(sanitized)
-            print(query)
-            result = db.session.execute(query, {'term': sanitized, 'start': request.form.get('start-time'), 'end': request.form.get('end-time')})
-        primary_data = []
-        for row in result:
-            print(row._asdict())
-            primary_data.append(row._asdict())
-        response = json.dumps({'field': request.form.get('type'),'pri_data': primary_data})
+            if secondary_info:
+                sanitized = request.form.get('guid')
+                result = db.session.execute(query, {'term': sanitized})
+                sec_data = []
+                for row in result:
+                    print(row._asdict())
+                    sec_data.append(row._asdict())
+                response = json.dumps({'field': request.form.get('type'),'sec_data': sec_data})
+            else:    
+                sanitized = '%' + request.form.get('search') + '%'
+                if request.form.get('field') in ["Case ID", "System ID", "Client ID"]:
+                    sanitized = sanitized.replace('-', '')
+                print(sanitized)
+                print(query)
+                result = db.session.execute(query, {'term': sanitized, 'start': request.form.get('start-time'), 'end': request.form.get('end-time')})
+                primary_data = []
+                for row in result:
+                    print(row._asdict())
+                    primary_data.append(row._asdict())
+                response = json.dumps({'field': request.form.get('type'),'pri_data': primary_data})
         return response
     
 @app.route("/register", methods=['GET', 'POST'])

@@ -14,6 +14,7 @@ $("document").ready(function(){
     let type;
 
     function selector(type, refresh) {
+        const tbody_map = {'cases': 'case_tbody', 'clients': 'client_tbody'}
         if (refresh === undefined) {
             $('#fields').empty();
             $('#timefield').empty();
@@ -50,48 +51,78 @@ $("document").ready(function(){
         first_table = document.querySelector('#' + first + '_template').innerHTML;
         second_table = document.querySelector('#' + second + '_template').innerHTML;
         document.querySelector('#table_holder').innerHTML = first_table + second_table;
+        document.querySelector('.' + tbody_map[first]).setAttribute('id', 'primary');
         send_request(type, formData);
         $('.' + second).hide();
         return type;
     }
 
-    function send_request(type, formData) {
+    function populate(fieldinput, datamap) {
+        field_map = {'cases':['.case_tbody','#case_row_temp'],'client':['.client_tbody', '#client_row_temp']}
+        if (datamap.length == 0) {
+            let blank = document.querySelector('#blank').innerHTML;
+            blank = blank.replace('{table}', fieldinput);
+            document.querySelector(field_map[fieldinput][0]).innerHTML = blank; 
+        }
+        else {
+            const data_table = datamap.map(obj => {
+                let row_temp = document.querySelector(field_map[fieldinput][1]).innerHTML;
+                    if (fieldinput === 'cases') {
+                        row_temp = row_temp.replace('{case_id}', obj.case_id);
+                        row_temp = row_temp.replace('{client}', obj.client);
+                        row_temp = row_temp.replace('{case_num}', obj.case_num);
+                        row_temp = row_temp.replace('{video_file}', obj.video_file);
+                        row_temp = row_temp.replace('{datetime_created}', obj.datetime_created);
+                        row_temp = row_temp.replace('{datetime_resolved}', obj.datetime_resolved);
+                    }
+                    else {
+                        row_temp = row_temp.replace('{guid}', obj.guid);
+                        row_temp = row_temp.replace('{hostname}', obj.hostname);
+                        row_temp = row_temp.replace('{ip_addr}', obj.ip_addr);
+                        row_temp = row_temp.replace('{date_registered}', obj.date_registered);
+                        row_temp = row_temp.replace('{last_modified}', obj.last_modified);
+                        row_temp = row_temp.replace('{status}', obj.status);
+                    }
+                    return row_temp;
+            });
+            document.querySelector(field_map[fieldinput][0]).innerHTML = data_table.join('');
+        }
+    }
+
+    function send_request(type, formData, guid) {
         formData.append('type', type);
+        if (guid !== undefined) {
+            formData.append('guid', guid);
+        }
         res = fetch('/search', {
             method: 'POST',
             body: formData
         }).then(function(response) {
             return response.json();
         }).then(function(json){
-            field_map = {'cases':['.case_tbody','#case_row_temp'],'client':['.client_tbody', '#client_row_temp']}
+            table_map = {'cases':'.cases','client':'.clients'}
             if (json.hasOwnProperty('pri_data')) {
-                if (json.pri_data.length == 0) {
-                    let blank = document.querySelector('#blank').innerHTML;
-                    blank = blank.replace('{table}', json.field);
-                    document.querySelector(field_map[json.field][0]).innerHTML = blank;
-                }
-                else {
-                    const pri_table = json.pri_data.map(obj => {
-                        let row_temp = document.querySelector(field_map[json.field][1]).innerHTML;
-                        if (json.field === 'cases') {
-                            row_temp = row_temp.replace('{case_id}', obj.case_id);
-                            row_temp = row_temp.replace('{client}', obj.client);
-                            row_temp = row_temp.replace('{case_num}', obj.case_num);
-                            row_temp = row_temp.replace('{video_file}', obj.video_file);
-                            row_temp = row_temp.replace('{datetime_created}', obj.datetime_created);
-                            row_temp = row_temp.replace('{datetime_resolved}', obj.datetime_resolved);
-                        }
-                        else {
-                            row_temp = row_temp.replace('{guid}', obj.guid);
-                            row_temp = row_temp.replace('{hostname}', obj.hostname);
-                            row_temp = row_temp.replace('{ip_addr}', obj.ip_addr);
-                            row_temp = row_temp.replace('{date_registered}', obj.date_registered);
-                            row_temp = row_temp.replace('{last_modified}', obj.last_modified);
-                            row_temp = row_temp.replace('{status}', obj.status);
-                        }
-                        return row_temp;
-                    });
-                    document.querySelector(field_map[json.field][0]).innerHTML = pri_table.join('');
+                populate(json.field, json.pri_data);
+            }
+            else if (json.hasOwnProperty('sec_data')) {
+                populate(json.field, json.sec_data);
+            }
+            $(table_map[json.field]).fadeIn(200);
+            $(table_map[json.field] + ' tr').hide();
+            $(table_map[json.field] + ' tr').each(function(i) {
+                $(this).delay(50*i).fadeIn(50);
+            })
+
+            if (json.field === 'client') {
+                let c_rows = document.querySelectorAll('.c_row');
+                for (let row of c_rows) {
+                    if (row.querySelector('td:nth-child(6)').innerText === 'Healthy') {
+                        row.querySelector('td:nth-child(6)').style.backgroundColor = '#1cbd00';
+                        row.querySelector('td:nth-child(6)').style.color = 'black';
+                    }
+                    else if (row.querySelector('td:nth-child(6)').innerText === 'Affected') {
+                        row.querySelector('td:nth-child(6)').style.backgroundColor = '#bd0d00';
+                    }
                 }
             }
         });
@@ -118,4 +149,16 @@ $("document").ready(function(){
         event.preventDefault();
         type = selector(type,'refresh');
     })
+
+    $('#table_holder').on('click', '.selectable', function(event) {
+        if ($(event.currentTarget).parent()[0].id === 'primary') {
+            const guid = $(event.currentTarget).children('.sec_info')[0].innerHTML;
+            const form = document.getElementById('searchform');
+            var formData = new FormData(form);
+            if (type === 'cases') {
+                send_request('client', formData, guid);
+            }
+            else {send_request('cases', formData, guid);}
+        }
+    });
 });

@@ -39,6 +39,8 @@
                 </form>
             </div>
         </div>
+        <h2>Results</h2>
+        <hr class="secondary">
         <div id="tables">
             <div id="table_holder"></div>
             <template id="cases_template">
@@ -55,9 +57,9 @@
                 </table>
             </template>
             <template id="case_row_temp">
-                <tr>
+                <tr class="selectable">
                     <td style="width: 20vw;">{case_id}</td>
-                    <td style="width: 20vw;">{client}</td>
+                    <td class="sec_info" style="width: 20vw;">{client}</td>
                     <td class="casenum">{case_num}</td>
                     <td style="width: 10vw;">{video_file}</td>
                     <td class="created">{datetime_created}</td>
@@ -78,8 +80,8 @@
                 </table>
             </template>
             <template id="client_row_temp">
-                <tr>
-                    <td style="width: 20vw;">{guid}</td>
+                <tr class="c_row selectable">
+                    <td class="sec_info" style="width: 20vw;">{guid}</td>
                     <td class="client_major">{hostname}</td>
                     <td class="client_major">{ip_addr}</td>
                     <td class="client_major">{date_registered}</td>
