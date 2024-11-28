@@ -142,7 +142,6 @@ def search():
         if request.form.get("timefield") in time_fields and restrict_by_time:
             if 'where' not in statement:
                 statement += ' where'
-            print(request.form.get('start-time') == '')
             if request.form.get('start-time') == '' or request.form.get('end-time') == '':
                 statement += f' {time_fields[request.form.get("timefield")]} is null'
             else:
@@ -159,19 +158,15 @@ def search():
                 result = db.session.execute(query, {'term': sanitized})
                 sec_data = []
                 for row in result:
-                    print(row._asdict())
                     sec_data.append(row._asdict())
                 response = json.dumps({'field': request.form.get('type'),'sec_data': sec_data})
             else:    
                 sanitized = '%' + request.form.get('search') + '%'
                 if request.form.get('field') in ["Case ID", "System ID", "Client ID"]:
                     sanitized = sanitized.replace('-', '')
-                print(sanitized)
-                print(query)
                 result = db.session.execute(query, {'term': sanitized, 'start': request.form.get('start-time'), 'end': request.form.get('end-time')})
                 primary_data = []
                 for row in result:
-                    print(row._asdict())
                     primary_data.append(row._asdict())
                 response = json.dumps({'field': request.form.get('type'),'pri_data': primary_data})
         return response
