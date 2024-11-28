@@ -48,6 +48,7 @@ class Cases(db.Model):
     client: Mapped[uuid.UUID] = mapped_column(ForeignKey("client.guid"))
     json_log: Mapped[JSON] = mapped_column(JSON, nullable=False)
     transcript: Mapped[str] = mapped_column(String(255), nullable=True)
+    parsed_res: Mapped[JSON] = mapped_column(JSON, nullable=True)
     video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
     datetime_created: Mapped[datetime.datetime] = mapped_column(nullable=False)
     datetime_resolved: Mapped[datetime.datetime] = mapped_column(nullable=True)
