@@ -20,7 +20,7 @@ body {
     box-shadow: 0 0 3px 1px #05c9f5;
 }
 
-h1 {
+h1, h2 {
     font-family: 'Megrim', 'cursive';
     text-align: center;
     padding-top: 100px;
@@ -28,10 +28,18 @@ h1 {
     color: whitesmoke;
 }
 
+h2 {
+    padding-top: 50px;
+}
+
 hr {
     width: 90vw;
     justify-self: center;
     color: whitesmoke;
+}
+
+.secondary {
+    width: 60vw;
 }
 
 #searchbar {
@@ -155,7 +163,7 @@ hr {
 }
 
 #tables {
-    margin-top: 70px;
+    margin-top: 40px;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -163,7 +171,7 @@ hr {
 
 #tables table {
     width: calc(80vw + 2px);
-    margin-bottom: 100px;
+    margin-bottom: 50px;
 }
 
 #tables table thead, #tables table tbody {
@@ -185,6 +193,7 @@ hr {
     max-height: 500px;
     overflow-y: scroll;
     scrollbar-width: none;
+    border-bottom: 1px solid #3a7da1;
 }
 
 #tables table tbody::-webkit-scrollbar {
@@ -205,7 +214,6 @@ hr {
 
 #tables table tbody td {
     padding-left: 0.7vw;
-    border-bottom: 1px solid #3a7da1;
     display: inline-block;
     overflow: hidden;
     white-space: nowrap;
@@ -231,7 +239,13 @@ hr {
     color: whitesmoke;
 }
 
-
+#tables .clients .c_row td:nth-child(6) {
+    font-weight: 500;
+    text-align: center;
+    padding-left: 0;
+    box-shadow: 1px 0 2px 1px #0a0a0a inset;
+    border: none;
+}
 
 #blank_temp .blank {
     width: calc(80vw + 2px);

@@ -103,11 +103,11 @@ $("document").ready(function(){
         })
         
         $('.client_row').each(function(i) {
-            $(this).delay(200*i).fadeIn(200);
+            $(this).delay(50*i).fadeIn(50);
         });
 
         $('.case_row').each(function(i) {
-            $(this).delay(200*i).fadeIn(200);
+            $(this).delay(50*i).fadeIn(50);
         });
     };
 
