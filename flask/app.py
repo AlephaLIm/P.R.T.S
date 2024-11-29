@@ -8,7 +8,9 @@ import random
 from typing import Optional
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, jsonify, url_for, Response
-from celery_conf import celery_init, FlaskTask
+from celery import shared_task
+from celery.result import AsyncResult
+from celery_conf import celery_init
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first
@@ -28,6 +30,7 @@ app.config['UPLOAD_FOLDER'] = './uploads'
 db_user = os.environ['DB_USER']
 db_password = os.environ['DB_PASSWORD']
 db_name = os.environ['DB_NAME']
+config_folder = os.environ['CONFIG']
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}"
 
 db.init_app(app)
@@ -60,6 +63,7 @@ class Cases(db.Model):
     transcript: Mapped[str] = mapped_column(String(255), nullable=True)
     parsed_res: Mapped[JSON] = mapped_column(JSON, nullable=True)
     video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
+    analysis_process: Mapped[str] = mapped_column(String(100), nullable=True)
     datetime_created: Mapped[datetime.datetime] = mapped_column(nullable=False)
     datetime_resolved: Mapped[datetime.datetime] = mapped_column(nullable=True)
 
@@ -117,6 +121,16 @@ def generate_list():
     else:
         client_data.append('null')
     return case_data, client_data
+
+def load_config():
+    config_file = 'default/default.json'
+    with os.scandir(config_folder) as entries:
+        for entry in entries:
+            if entry.is_file() and entry.name.endswith('.json'):
+                config_file = entry.name
+    with open(os.path.join(config_folder, config_file), 'r') as file:
+        data = json.load(file)
+    return data
 
 def publish_newlist():
     case_data, client_data = generate_list()
@@ -206,7 +220,9 @@ def register():
                 db.session.add(new_client)
                 db.session.commit()
             publish_newlist()
-            return "Success", 201
+            config = load_config()
+            config['identity']['guid'] = str(guid)
+            return json.dumps(config), 200
         else:
             return "Missing Fields", 400
 
@@ -227,7 +243,9 @@ def update_details():
                     db.session.execute(update(Client),[{"guid":uuid.UUID(req_data['guid']),"last_modified":datetime.datetime.now()}])
                     db.session.commit()
             publish_newlist()
-            return "Success", 200
+            config = load_config()
+            config['identity']['guid'] = str(uuid.UUID(req_data['guid']))
+            return json.dumps(config), 200
         else:
             return "No GUID provided", 400
 
