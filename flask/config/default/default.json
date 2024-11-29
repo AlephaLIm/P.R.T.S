@@ -1,0 +1,22 @@
+{
+    "recording": {
+        "pre_event_duration": 60,
+        "post_event_duration": 30,
+        "duration_buffer": 10,
+        "fps": 24,
+        "resolution": {
+            "width": 0,
+            "height": 0
+        }
+    },
+    "buffer": {
+        "segment_duration": 60
+    },
+    "event_monitor": {
+        "channel_path": "Symantec Endpoint Protection Client",
+        "event_id": 51
+    },
+    "identity": {
+        "guid" : ""
+    }
+}
