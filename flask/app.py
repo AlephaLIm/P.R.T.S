@@ -8,6 +8,7 @@ import random
 from typing import Optional
 from dotenv import load_dotenv
 from flask import Flask, request, render_template, jsonify, url_for, Response
+from celery_conf import celery_init, FlaskTask
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first
@@ -17,7 +18,6 @@ from werkzeug.utils import secure_filename
 
 class Base(DeclarativeBase):
     pass
-
 db = SQLAlchemy(model_class=Base)
 load_dotenv()
 
@@ -31,6 +31,16 @@ db_name = os.environ['DB_NAME']
 app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{db_user}:{db_password}@localhost/{db_name}"
 
 db.init_app(app)
+
+app.config.from_mapping(
+    CELERY=dict(
+        broker_url="redis://localhost",
+        result_backend="redis://localhost",
+        task_ignore_result=True
+    ),
+)
+
+celery_app = celery_init(app)
 
 class Client(db.Model):
     __tablename__ = "client"
