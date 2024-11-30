@@ -71,7 +71,7 @@ $("document").ready(function(){
                         row_temp = row_temp.replace('{case_id}', obj.case_id);
                         row_temp = row_temp.replace('{client}', obj.client);
                         row_temp = row_temp.replace('{case_num}', obj.case_num);
-                        row_temp = row_temp.replace('{video_file}', obj.video_file);
+                        row_temp = row_temp.replace('{video_file}', obj.video_file.replace(/^.*[\\/]/, ''));
                         row_temp = row_temp.replace('{datetime_created}', obj.datetime_created);
                         row_temp = row_temp.replace('{datetime_resolved}', obj.datetime_resolved);
                     }

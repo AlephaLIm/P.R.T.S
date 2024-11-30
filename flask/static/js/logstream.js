@@ -26,12 +26,10 @@ $("document").ready(function(){
         datasets: [{
             label: 'Log Ingest Type',
             data: piedataset,
-            backgroundColor: [
-                'rgb(7, 7, 232)',
-                'rgb(232, 7, 56)',
-                'rgb(232, 228, 7)'
-            ],
-            hoverOffset: 5
+            backgroundColor: palette('tol', piedataset.length).map(function(hex) {
+                return '#' + hex;
+            }),
+            hoverOffset: 5,
         }]
     }
 
