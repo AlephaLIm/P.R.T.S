@@ -66,7 +66,7 @@ $("document").ready(function(){
             const casetable = e.cases.map(obj => {
                 let caseitem = document.querySelector('#case_template').innerHTML;
                 caseitem = caseitem.replace('{case_num}', obj.casenum);
-                caseitem = caseitem.replace('{caseid}', obj.cid);
+                caseitem = caseitem.replace(/{caseid}/g, obj.cid);
                 caseitem = caseitem.replace('{client}', obj.guid);
                 caseitem = caseitem.replace('{created}', obj.created);
                 caseitem = caseitem.replace('{resolved}', obj.resolved);

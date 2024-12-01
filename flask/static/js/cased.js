@@ -64,8 +64,6 @@ $("document").ready(function() {
         }
     }
 
-    collapsible_listeners();
-
     function call_for_chart(cid) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
@@ -85,7 +83,7 @@ $("document").ready(function() {
 
     cid = document.querySelector('#title_h1 p').innerHTML;
     call_for_chart(cid);
-    console.log(cid);
+    collapsible_listeners();
 
     if (document.getElementsByClassName('empty') != null) {
         var refresh = new EventSource('/check_status/' + cid);
@@ -93,7 +91,6 @@ $("document").ready(function() {
             var e = JSON.parse(event.data.substring(2, event.data.length - 1));
             let transcript_content = document.querySelector('#transcript_template').innerHTML;
             transcript_content = transcript_content.replace('{content}', e.transcript);
-            console.log(transcript_content);
             document.querySelector('.transcript').innerHTML = transcript_content;
             const logrecord = Object.values(e.json_data).map(obj => {
                 let recordheader = document.querySelector('#log_template').innerHTML;
@@ -113,8 +110,43 @@ $("document").ready(function() {
             });
             document.querySelector('.logs').innerHTML = '<div class="log_header">Related Logs</div>' + logrecord.join('');
             document.querySelector('#status_proc').innerHTML = 'Finished';
+            $('.collapsible').each(function(i) {
+                $(this).hide();
+                $(this).delay(50*i).fadeIn(50);
+            })
             collapsible_listeners();
             check_status();
         }
     }
+
+    $("#resolved_status").on("click", function(event) {
+        const dataHeaders = new Headers();
+        dataHeaders.append("Content-Type", "application/json");
+        let json_body;
+        if (event.currentTarget.innerHTML === 'Open') {
+            json_body = { action:"resolve" }
+        }
+        else {
+            json_body = { action:"open" }
+        }
+        res = fetch(('/case/' + cid), {
+            method: 'POST',
+            body: JSON.stringify(json_body),
+            headers: dataHeaders
+        }).then(function(response) {
+            return response.json();
+        }).then(function(json) {
+            document.querySelector('#resolved_date').innerHTML ='Date Resolved: ' + json.resolved;
+            if (json.resolved != 'None') {
+                document.querySelector('#resolved').innerHTML = 'Resolved: Yes';
+                document.querySelector('#resolved_status').innerHTML = 'Closed';
+                check_status();
+            }
+            else {
+                document.querySelector('#resolved').innerHTML = 'Resolved: No';
+                document.querySelector('#resolved_status').innerHTML = 'Open';
+                check_status();
+            }
+        });
+    });
 });

@@ -13,7 +13,7 @@ from celery.result import AsyncResult
 from celery_conf import celery_init
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first, Text
+from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first, Text, cast, null
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
@@ -26,7 +26,10 @@ load_dotenv()
 app = Flask(__name__)
 red = redis.StrictRedis()
 
-app.config['UPLOAD_FOLDER'] = './uploads'
+if not os.path.isdir(os.environ['UPLOAD_DIR']):
+    os.makedirs(os.environ['UPLOAD_DIR'])
+
+app.config['UPLOAD_FOLDER'] = os.environ['UPLOAD_DIR']
 db_user = os.environ['DB_USER']
 db_password = os.environ['DB_PASSWORD']
 db_name = os.environ['DB_NAME']
@@ -217,34 +220,57 @@ def search():
                 response = json.dumps({'field': request.form.get('type'),'pri_data': primary_data})
         return response
 
-@app.route("/case/<cid>", methods=['GET'])
+@app.route("/case/<cid>", methods=['GET', 'POST'])
 def case(cid):
-    with app.app_context():
-        caseitem = db.session.execute(select(Cases).where(Cases.case_id == uuid.UUID(cid))).one_or_none()
-        if caseitem is not None:
-            dl_path = '/download/' + cid
-            filename = os.path.basename(caseitem[0].video_file)
-            caseobj = caseitem[0]
-            if caseobj.datetime_resolved is None:
-                res = "No"
-            else:
-                res = "Yes"
-            clientitem = db.session.execute(select(Client).where(Client.guid == caseobj.client)).one_or_none()
-            if clientitem is not None:
-                client = clientitem[0]
-            if caseobj.transcript != '':
-                transcript = caseobj.transcript
-                logs = caseobj.parsed_res
-    return render_template('case.html',
-                           title='Case Details',
-                           page_css='css/case.css',
-                           case=caseobj,
-                           client=client,
-                           resolved=res,
-                           dl_path = dl_path,
-                           filename=filename,
-                           transcript=transcript,
-                           logs=logs)
+    if request.method == 'GET':
+        with app.app_context():
+            caseitem = db.session.execute(select(Cases).where(Cases.case_id == uuid.UUID(cid))).one_or_none()
+            if caseitem is not None:
+                dl_path = '/download/' + cid
+                filename = os.path.basename(caseitem[0].video_file)
+                caseobj = caseitem[0]
+                if caseobj.datetime_resolved is None:
+                    res = "No"
+                else:
+                    res = "Yes"
+                clientitem = db.session.execute(select(Client).where(Client.guid == caseobj.client)).one_or_none()
+                if clientitem is not None:
+                    client = clientitem[0]
+                if caseobj.transcript != '':
+                    transcript = caseobj.transcript
+                    logs = caseobj.parsed_res
+        return render_template('case.html',
+                            title='Case Details',
+                            page_css='css/case.css',
+                            case=caseobj,
+                            client=client,
+                            resolved=res,
+                            dl_path = dl_path,
+                            filename=filename,
+                            transcript=transcript,
+                            logs=logs)
+    
+    elif request.method == 'POST':
+        req_data = request.get_json()
+        if req_data.get('action') == 'resolve':
+            with app.app_context():
+                db.session.execute(update(Cases),[{"case_id": uuid.UUID(cid), "datetime_resolved": datetime.datetime.now()}])
+                client_id = db.session.execute(select(Cases.client).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+                db.session.execute(update(Client), [{"guid":client_id, "status": "Healthy"}])
+                db.session.commit()
+        elif req_data.get('action') == 'open':
+            with app.app_context():
+                db.session.execute(update(Cases),[{"case_id": uuid.UUID(cid), "datetime_resolved": None}])
+                client_id = db.session.execute(select(Cases.client).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+                db.session.execute(update(Client), [{"guid":client_id, "status": "Affected"}])
+                db.session.commit()
+        with app.app_context():
+            resolved_dt = db.session.execute(select(cast(Cases.datetime_resolved, String())).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+        if resolved_dt is None:
+            new_datetime = 'None'
+        else:
+            new_datetime = resolved_dt
+        return json.dumps({"resolved":new_datetime})
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
@@ -376,7 +402,6 @@ def get_chartdata(cid):
 @app.route("/check_status/<cid>")
 def check_status(cid):
     return Response(get_processed_data(cid), mimetype="text/event-stream")
-
 
 if __name__ == '__main__':
     app.debug = True

@@ -21,14 +21,14 @@
             </div>
             <div class="status">
                 {% if transcript %}
-                <div class="statusnode">Finished</div>
+                <div id="status_proc" class="statusnode">Finished</div>
                 {% else %}
                 <div id="status_proc" class="statusnode">Processing</div>
                 {% endif %}
                 {% if resolved == 'Yes' %}
-                <div class="statusnode">Closed</div>
+                <div id="resolved_status" class="statusnode">Closed</div>
                 {% else %}
-                <div class="statusnode">Open</div>
+                <div id="resolved_status" class="statusnode">Open</div>
                 {% endif %}
             </div>
         </div>
@@ -46,9 +46,9 @@
                         <hr class="table_diff">
                         <div class="body_info">Date Created: {{ case.datetime_created }}</div>
                         <hr class="table_diff">
-                        <div class="body_info">Date Resolved: {{ case.datetime_resolved }}</div>
+                        <div id="resolved_date" class="body_info">Date Resolved: {{ case.datetime_resolved }}</div>
                         <hr class="table_diff">
-                        <div class="body_info">Resolved: {{ resolved }}</div>
+                        <div id="resolved" class="body_info">Resolved: {{ resolved }}</div>
                     </div>
                 </div>
                 <div class="client_table">

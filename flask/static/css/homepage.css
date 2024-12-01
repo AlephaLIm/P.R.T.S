@@ -111,7 +111,7 @@ hr {
     
 }
 
-.clients tbody td:nth-child(6) {
+.clients tbody tr td:nth-child(6) {
     
     background-color: #323333;
     color: white;
@@ -193,6 +193,10 @@ hr {
 
 .linegraph {
     padding-right: 0;
+}
+
+.piechart {
+    padding-left: 0;
 }
 
 .cases tbody td, .clients tbody td {
