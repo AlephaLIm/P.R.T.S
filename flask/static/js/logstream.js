@@ -26,12 +26,10 @@ $("document").ready(function(){
         datasets: [{
             label: 'Log Ingest Type',
             data: piedataset,
-            backgroundColor: [
-                'rgb(7, 7, 232)',
-                'rgb(232, 7, 56)',
-                'rgb(232, 228, 7)'
-            ],
-            hoverOffset: 5
+            backgroundColor: palette('tol', piedataset.length).map(function(hex) {
+                return '#' + hex;
+            }),
+            hoverOffset: 5,
         }]
     }
 
@@ -68,7 +66,7 @@ $("document").ready(function(){
             const casetable = e.cases.map(obj => {
                 let caseitem = document.querySelector('#case_template').innerHTML;
                 caseitem = caseitem.replace('{case_num}', obj.casenum);
-                caseitem = caseitem.replace('{caseid}', obj.cid);
+                caseitem = caseitem.replace(/{caseid}/g, obj.cid);
                 caseitem = caseitem.replace('{client}', obj.guid);
                 caseitem = caseitem.replace('{created}', obj.created);
                 caseitem = caseitem.replace('{resolved}', obj.resolved);

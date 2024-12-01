@@ -7,13 +7,13 @@ import json
 import random
 from typing import Optional
 from dotenv import load_dotenv
-from flask import Flask, request, render_template, jsonify, url_for, Response
+from flask import Flask, request, render_template, jsonify, url_for, Response, send_file
 from celery import shared_task
 from celery.result import AsyncResult
 from celery_conf import celery_init
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first
+from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first, Text, cast, null
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
@@ -26,7 +26,10 @@ load_dotenv()
 app = Flask(__name__)
 red = redis.StrictRedis()
 
-app.config['UPLOAD_FOLDER'] = './uploads'
+if not os.path.isdir(os.environ['UPLOAD_DIR']):
+    os.makedirs(os.environ['UPLOAD_DIR'])
+
+app.config['UPLOAD_FOLDER'] = os.environ['UPLOAD_DIR']
 db_user = os.environ['DB_USER']
 db_password = os.environ['DB_PASSWORD']
 db_name = os.environ['DB_NAME']
@@ -60,7 +63,7 @@ class Cases(db.Model):
     case_num: Mapped[int] = mapped_column(unique=True)
     client: Mapped[uuid.UUID] = mapped_column(ForeignKey("client.guid"))
     json_log: Mapped[JSON] = mapped_column(JSON, nullable=False)
-    transcript: Mapped[str] = mapped_column(String(255), nullable=True)
+    transcript: Mapped[Text] = mapped_column(Text, nullable=True)
     parsed_res: Mapped[JSON] = mapped_column(JSON, nullable=True)
     video_file: Mapped[Optional[str]] = mapped_column(String(255), nullable=False)
     analysis_process: Mapped[str] = mapped_column(String(100), nullable=True)
@@ -100,6 +103,16 @@ def get_listresponse():
             yield f'data:{msg.get('data')}\n\n'
         time.sleep(0.01)
 
+def get_processed_data(cid):
+    d_channel = red.pubsub(ignore_subscribe_messages=True)
+    d_channel.subscribe(cid)
+    while True:
+        message = d_channel.get_message()
+        if message:
+                msg = dict(message)
+                yield f'data:{msg.get('data')}\n\n'
+        time.sleep(0.01)
+
 def generate_list():
     with app.app_context():
         cases = db.session.execute(select(Cases).order_by(Cases.datetime_created.desc(), Cases.datetime_resolved.desc())).fetchmany(10)
@@ -136,6 +149,17 @@ def publish_newlist():
     case_data, client_data = generate_list()
     time.sleep(0.5)
     red.publish('case_client', json.dumps({"cases":case_data, "clients":client_data}))
+
+@shared_task(ignore_result=False)
+def process_data(filepath, cid) -> str:
+    time.sleep(30)
+    with open('./test/test.txt') as f:
+        text_data = f.read()
+    with open('./test/message.json') as file:
+        json_data = json.load(file)
+    db.session.execute(update(Cases), [{"case_id":uuid.UUID(cid),"transcript":text_data,"parsed_res":json_data}])
+    db.session.commit()
+    return 'COMPLETED'
 
 @app.route("/")
 def homepage():
@@ -195,7 +219,59 @@ def search():
                     primary_data.append(row._asdict())
                 response = json.dumps({'field': request.form.get('type'),'pri_data': primary_data})
         return response
+
+@app.route("/case/<cid>", methods=['GET', 'POST'])
+def case(cid):
+    if request.method == 'GET':
+        with app.app_context():
+            caseitem = db.session.execute(select(Cases).where(Cases.case_id == uuid.UUID(cid))).one_or_none()
+            if caseitem is not None:
+                dl_path = '/download/' + cid
+                filename = os.path.basename(caseitem[0].video_file)
+                caseobj = caseitem[0]
+                if caseobj.datetime_resolved is None:
+                    res = "No"
+                else:
+                    res = "Yes"
+                clientitem = db.session.execute(select(Client).where(Client.guid == caseobj.client)).one_or_none()
+                if clientitem is not None:
+                    client = clientitem[0]
+                if caseobj.transcript != '':
+                    transcript = caseobj.transcript
+                    logs = caseobj.parsed_res
+        return render_template('case.html',
+                            title='Case Details',
+                            page_css='css/case.css',
+                            case=caseobj,
+                            client=client,
+                            resolved=res,
+                            dl_path = dl_path,
+                            filename=filename,
+                            transcript=transcript,
+                            logs=logs)
     
+    elif request.method == 'POST':
+        req_data = request.get_json()
+        if req_data.get('action') == 'resolve':
+            with app.app_context():
+                db.session.execute(update(Cases),[{"case_id": uuid.UUID(cid), "datetime_resolved": datetime.datetime.now()}])
+                client_id = db.session.execute(select(Cases.client).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+                db.session.execute(update(Client), [{"guid":client_id, "status": "Healthy"}])
+                db.session.commit()
+        elif req_data.get('action') == 'open':
+            with app.app_context():
+                db.session.execute(update(Cases),[{"case_id": uuid.UUID(cid), "datetime_resolved": None}])
+                client_id = db.session.execute(select(Cases.client).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+                db.session.execute(update(Client), [{"guid":client_id, "status": "Affected"}])
+                db.session.commit()
+        with app.app_context():
+            resolved_dt = db.session.execute(select(cast(Cases.datetime_resolved, String())).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+        if resolved_dt is None:
+            new_datetime = 'None'
+        else:
+            new_datetime = resolved_dt
+        return json.dumps({"resolved":new_datetime})
+
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
@@ -274,7 +350,20 @@ def upload_file():
             db.session.execute(update(Client),[{"guid":uuid.UUID(client_id),"status":"Affected"}])
             db.session.commit()
         publish_newlist()
+        result = process_data.delay(os.path.join(app.config['UPLOAD_FOLDER'], filename), str(new_cuid))
+        with app.app_context():
+            db.session.execute(update(Cases),[{"case_id":new_cuid,"analysis_process":result.id}])
+            db.session.commit()
         return "Success", 200
+
+@app.route("/download/<cid>", methods=['GET', 'POST'])
+def download(cid):
+    with app.app_context():
+        result = db.session.execute(select(Cases.video_file).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+    return send_file(result,
+                     as_attachment=True,
+                     download_name=os.path.basename(result),
+                     mimetype='application/octect')
 
 @app.route("/datastream")
 def datastream():
@@ -288,6 +377,31 @@ def casestream():
 def initialize():
     publish_newlist()
     return "Success", 200
+
+@app.route("/get_chartdata/<cid>")
+def get_chartdata(cid):
+    with app.app_context():
+        state_id = db.session.execute(select(Cases.analysis_process).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+        status = AsyncResult(state_id)
+    while True:
+        if status.ready():
+            with app.app_context():
+                json_data = db.session.execute(select(Cases.parsed_res).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+                result_pack = db.session.execute(select(Cases.transcript, Cases.parsed_res).where(Cases.case_id == uuid.UUID(cid))).one_or_none()
+            chartdata = {}
+            for data in json_data.values():
+                if data.get('source') not in chartdata.keys():
+                    chartdata[data.get('source')] = 1
+                else:
+                    chartdata[data.get('source')] += 1
+            red.publish(cid, json.dumps({"transcript":result_pack[0],"json_data":result_pack[1]}))
+            return json.dumps(chartdata)
+        time.sleep(1)
+        
+
+@app.route("/check_status/<cid>")
+def check_status(cid):
+    return Response(get_processed_data(cid), mimetype="text/event-stream")
 
 if __name__ == '__main__':
     app.debug = True

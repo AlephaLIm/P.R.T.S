@@ -1,0 +1,154 @@
+{
+    "Object 1": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:577423",
+        "_indextime": "1732191646",
+        "_raw": "11/20/2024 10:43:27 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-SVR\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=18384\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-SVR$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\Windows\\SysWOW64\\notepad.exe\n\tHandle ID:\t0x180\n\nProcess Information:\n\tProcess ID:\t0x1d10\n\tProcess Name:\tC:\\Windows\\System32\\poqexec.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\tS:AINO_ACCESS_CONTROL\n\tNew Security Descriptor:\t\tS:ARAI(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "0",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-20T22:43:27.000+08:00",
+        "host": "DF-SVR",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 2": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:489489",
+        "_indextime": "1732191636",
+        "_raw": "11/20/2024 10:43:23 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-SVR\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=14959\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-SVR$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\Windows\\System32\\notepad.exe\n\tHandle ID:\t0x80\n\nProcess Information:\n\tProcess ID:\t0x1d10\n\tProcess Name:\tC:\\Windows\\System32\\poqexec.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\tS:AINO_ACCESS_CONTROL\n\tNew Security Descriptor:\t\tS:ARAI(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "1",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-20T22:43:23.000+08:00",
+        "host": "DF-SVR",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 3": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:286140",
+        "_indextime": "1732191611",
+        "_raw": "11/20/2024 08:07:57 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-SVR\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=7624\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-SVR$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\$WinREAgent\\Scratch\\Mount\\Windows\\WinSxS\\amd64_microsoft-windows-notepad_31bf3856ad364e35_10.0.22621.2506_none_4ef4f312eb9f4374\\notepad.exe\n\tHandle ID:\t0x77c\n\nProcess Information:\n\tProcess ID:\t0x2008\n\tProcess Name:\tC:\\Windows\\UUS\\Packages\\Preview\\amd64\\wuaucltcore.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\t\n\tNew Security Descriptor:\t\tS:ARAI(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "2",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-20T20:07:57.000+08:00",
+        "host": "DF-SVR",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 4": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:236417",
+        "_indextime": "1732191605",
+        "_raw": "11/20/2024 08:07:47 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-SVR\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=5875\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-SVR$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\$WinREAgent\\Scratch\\Mount\\Windows\\WinSxS\\amd64_microsoft-windows-notepad.resources_31bf3856ad364e35_10.0.22621.1_en-us_7f7ba3c5c2b84fcf\\notepad.exe.mui\n\tHandle ID:\t0x80c\n\nProcess Information:\n\tProcess ID:\t0x2008\n\tProcess Name:\tC:\\Windows\\UUS\\Packages\\Preview\\amd64\\wuaucltcore.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\t\n\tNew Security Descriptor:\t\tS:ARAI(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "3",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-20T20:07:47.000+08:00",
+        "host": "DF-SVR",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 5": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:1231609",
+        "_indextime": "1732193123",
+        "_raw": "11/18/2024 11:34:59 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-CL01\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=40248\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\$WinREAgent\\Scratch\\Mount\\Windows\\WinSxS\\amd64_microsoft-windows-notepad.resources_31bf3856ad364e35_10.0.26100.1_en-us_1ad980723786ba15\\notepad.exe.mui\n\tHandle ID:\t0x1114\n\nProcess Information:\n\tProcess ID:\t0xca0\n\tProcess Name:\tC:\\Windows\\UUS\\amd64\\wuaucltcore.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\t\n\tNew Security Descriptor:\t\tS:(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "4",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-18T23:34:59.000+08:00",
+        "host": "DF-CL01",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 6": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:1148415",
+        "_indextime": "1732193113",
+        "_raw": "11/18/2024 11:34:51 PM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-CL01\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=37262\nKeywords=Audit Success\nTaskCategory=User Account Management\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\$WinREAgent\\Scratch\\Mount\\Windows\\WinSxS\\amd64_microsoft-windows-notepad_31bf3856ad364e35_10.0.26100.1_none_6c0e35dbd88c55f8\\notepad.exe\n\tHandle ID:\t0x76c\n\nProcess Information:\n\tProcess ID:\t0xca0\n\tProcess Name:\tC:\\Windows\\UUS\\amd64\\wuaucltcore.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\t\n\tNew Security Descriptor:\t\tS:(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "5",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-18T23:34:51.000+08:00",
+        "host": "DF-CL01",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 7": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:1051288",
+        "_indextime": "1732193099",
+        "_raw": "11/10/2024 01:42:06 AM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-CL01\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=34554\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\Windows\\SysWOW64\\notepad.exe\n\tHandle ID:\t0x17af8\n\nProcess Information:\n\tProcess ID:\t0x1b60\n\tProcess Name:\tC:\\Windows\\WinSxS\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_10.0.26100.2032_none_a54f556d772e44b1\\TiWorker.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\tS:NO_ACCESS_CONTROL\n\tNew Security Descriptor:\t\tS:(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "6",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-10T01:42:06.000+08:00",
+        "host": "DF-CL01",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    },
+    "Object 8": {
+        "_bkt": "main~0~9C1FDF8E-3073-49F4-B0D2-3B235729CE18",
+        "_cd": "0:919123",
+        "_indextime": "1732193084",
+        "_raw": "11/10/2024 01:41:56 AM\nLogName=Security\nEventCode=4907\nEventType=0\nComputerName=DF-CL01\nSourceName=Microsoft Windows security auditing.\nType=Information\nRecordNumber=31364\nKeywords=Audit Success\nTaskCategory=Audit Policy Change\nOpCode=Info\nMessage=Auditing settings on object were changed.\n\nSubject:\n\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\Windows\\System32\\notepad.exe\n\tHan-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile-18\n\tAccount Name:\t\tDF-CL01$\n\tAccount Domain:\t\tWORKGROUP\n\tLogon ID:\t\t0x3E7\n\nObject:\n\tObject Server:\tSecurity\n\tObject Type:\tFile\n\tObject Name:\tC:\\Windows\\System32\\notepad.exe\n\tHandle ID:\t0x11970\n\nProcess Information:\n\tProcess ID:\t0x1b60\n\tProcess Name:\tC:\\Windows\\WinSxS\\amd64_microsoft-windows-servicingstack_31bf3856ad364e35_10.0.26100.2032_none_a54f556d772e44b1\\TiWorker.exe\n\nAuditing Settings:\n\tOriginal Security Descriptor:\tS:NO_ACCESS_CONTROL\n\tNew Security Descriptor:\t\tS:(AU;SAFA;DCLCRPCRSDWDWO;;;WD)",
+        "_serial": "7",
+        "_si": [
+            "DF-SVR",
+            "main"
+        ],
+        "_sourcetype": "WinEventLog:Security",
+        "_time": "2024-11-10T01:41:56.000+08:00",
+        "host": "DF-CL01",
+        "index": "main",
+        "linecount": "32",
+        "source": "WinEventLog:Security",
+        "sourcetype": "WinEventLog:Security",
+        "splunk_server": "DF-SVR"
+    }
+}

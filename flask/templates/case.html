@@ -1,0 +1,131 @@
+{% extends 'navbar.html' %}
+
+{% block style %}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@48,400,1,0" />
+{% endblock style %}
+
+{% block script %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/google-palette@1.1.1/palette.min.js"></script>
+<script src="{{ url_for('static', filename='/js/cased.js') }}"></script>
+{% endblock script %}
+
+{% block body %}
+<main>
+    <div id="main_div">
+        <div id="header_box">
+            <div class="text">
+                <h1 id="title_h1">Case ID: <p>{{ case.case_id }}</p></h1>
+                <h2>Case Number: {{ case.case_num }}</h2>
+            </div>
+            <div class="status">
+                {% if transcript %}
+                <div id="status_proc" class="statusnode">Finished</div>
+                {% else %}
+                <div id="status_proc" class="statusnode">Processing</div>
+                {% endif %}
+                {% if resolved == 'Yes' %}
+                <div id="resolved_status" class="statusnode">Closed</div>
+                {% else %}
+                <div id="resolved_status" class="statusnode">Open</div>
+                {% endif %}
+            </div>
+        </div>
+        <hr>
+        <div id="info_box">
+            <div id="base_info">
+                <div class="case_table">
+                    <div class="header">Case Info</div>
+                    <div class="body">
+                        <div class="body_info">Case No.: {{ case.case_num }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Case ID: {{ case.case_id }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Affected: {{ case.client }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Date Created: {{ case.datetime_created }}</div>
+                        <hr class="table_diff">
+                        <div id="resolved_date" class="body_info">Date Resolved: {{ case.datetime_resolved }}</div>
+                        <hr class="table_diff">
+                        <div id="resolved" class="body_info">Resolved: {{ resolved }}</div>
+                    </div>
+                </div>
+                <div class="client_table">
+                    <div class="header">Affected Client</div>
+                    <div class="body">
+                        <div class="body_info">GUID: {{ client.guid }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Hostname: {{ client.hostname }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">IP Address: {{ client.ip_addr }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Date Registered: {{ client.date_registered }}</div>
+                        <hr class="table_diff">
+                        <div class="body_info">Last Modified: {{ client.last_modified }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="json_log">
+                <div class="header">Event Triggered</div>
+                <div class="body">{{ case.json_log }}</div>
+            </div>
+            <div class="right_side">
+                <div class="chartholder">
+                    <h3>Log Types</h3>
+                    <hr class="chart_hr">
+                    <div class="piechart">
+                        <div class="empty"><p class="empty_p">Processing...</p></div>
+                    </div>
+                </div>
+                <div class="video_link">
+                    Download Video: <a href="{{ dl_path }}" download>{{ filename }}</a>
+                </div>
+            </div>
+        </div>
+        <div class="orchestration">
+            <div class="transcript">
+                <div class="log_header">Transcript</div>
+                {% if transcript %}
+                <div class="transcript-data">{{ transcript }}</div>
+                {% else %}
+                <div class="empty"><p class="empty_p">Processing...</p></div>
+                {% endif %}
+            </div>
+            <template id="transcript_template">
+                <div class="log_header">Transcript</div>
+                <div class="transcript-data">{content}</div>
+            </template>
+            <div class="logs">
+                <div class="log_header">Related Logs</div>
+                {% if logs %}
+                {% for log in logs.values() %}
+                <button type="button" class="collapsible">source: {{ log.get('source') }}<span class="tab-space"></span>host: {{ log.get('host') }} index: {{ log.get('index') }}<br>_time: {{ log.get('_time') }}</button>
+                <div class="content">
+                    {% for key, value in log.items() %}
+                    <div class="field">
+                        <div class="keys">{{ key }}:<span class="tab-space"></span></div>
+                        <div class="values">{{ value }}</div>
+                    </div>
+                    <hr class="table_diff">
+                    {% endfor %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty"><p class="empty_p">Processing...</p></div>
+                {% endif %}
+            </div>
+            <template id="log_template">
+                <button type="button" class="collapsible">source: {source}<span class="tab-space"></span>host: {host} index: {index}<br>_time: {time}</button>
+            </template>
+            <template id="logfield_template">
+                <div class="field">
+                    <div class="keys">{key}:<span class="tab-space"></span></div>
+                    <div class="values">{value}</div>
+                </div>
+                <hr class="table_diff">
+            </template>
+        </div>
+    </div>
+</main>
+{% endblock body %}

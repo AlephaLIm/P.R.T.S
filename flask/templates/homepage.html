@@ -7,6 +7,7 @@
 
 {% block script %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/google-palette@1.1.1/palette.min.js"></script>
 <script src="{{ url_for('static', filename='/js/logstream.js') }}"></script>
 {% endblock script %}
 
@@ -62,7 +63,7 @@
             <template id="case_template">
                 <tr class="case_row">
                     <td style="width: max(3vw, 40px);">{case_num}</td>
-                    <td style="width: max(14.5vw, 90px);">{caseid}</td>
+                    <td style="width: max(14.5vw, 90px);"><a href="/case/{caseid}">{caseid}</a></td>
                     <td style="width: max(14.5vw, 90px);">{client}</td>
                     <td style="width: max(8vw, 84px);">{created}</td>
                     <td style="width: max(8vw, 84px);">{resolved}</td>
