@@ -51,7 +51,8 @@ $("document").ready(function(){
         linegraph.data.datasets[0].data.push(newdata);
         linegraph.update();
 
-        piechart.data.datasets[0].data = e.logtype;
+        piechart.data.labels = e.logtype;
+        piechart.data.datasets[0].data = e.dataset;
         piechart.update();
     }
 

@@ -129,7 +129,7 @@ $("document").ready(function(){
     }
 
     window.addEventListener('load', () => {
-        previous = new Date(new Date().setDate(new Date().getDate() - 1));
+        previous = new Date(new Date().setDate(new Date().getDate() - 7));
         document.getElementById('start-time').value = toLocaleISOString(previous);
         document.getElementById('end-time').value = toLocaleISOString(new Date());
         type = selector(type);

@@ -13,11 +13,13 @@ from celery.result import AsyncResult
 from celery_conf import celery_init
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, nulls_first, Text, cast, null
+from sqlalchemy import Integer, String, ForeignKey, select, update, JSON, Text, cast
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
-
+from modelapi import Uploader
+import splunklib.client as client
+import splunklib.results as results
 class Base(DeclarativeBase):
     pass
 db = SQLAlchemy(model_class=Base)
@@ -79,19 +81,40 @@ with engine.connect() as connection:
     if result == '':
         connection.execute(text('ALTER TABLE cases MODIFY case_num INTEGER UNIQUE AUTO_INCREMENT'))
 
-def logdata_stream():
+service = client.connect(
+    host=os.environ['SPLUNK_HOST'],
+    port=os.environ['SPLUNK_PORT'],
+    username=os.environ['SPLUNK_USR'],
+    password=os.environ['SPLUNK_PASS']
+)
+savedsearches = service.saved_searches
+for savedsearch in savedsearches:
+    if savedsearch.name == 'logstream':
+        savedsearches.delete('logstream')
+query = savedsearches.create('logstream', 'index=* | stats count by sourcetype | eventstats sum(count) as totalcount | eval percentage=(count/totalcount)')
+kwargs = {"is_scheduled": True, "cron_schedule": "* * * * *", "dispatch.status_buckets": "0", "dispatch.earliest_time":"-1m@m","dispatch.latest_time":"now", "dispatch.ttl":"30"}
+query.update(**kwargs).refresh()
+
+def logdata_stream(query):
     logdata_channel = red.pubsub(ignore_subscribe_messages=True)
     logdata_channel.subscribe('logstream')
+    initial_time = 1
     while True:
+        history = query.history()
         logtype = []
-        for i in range(3):
-            logtype.append(random.randint(2000, 20000))
-        red.publish('logstream', json.dumps({"data":f"{random.randint(0,100)}", "logtype":logtype}))
+        data_percentage = []
+        if len(history) > 0:
+            for type in list(results.JSONResultsReader(history[0].results(output_mode="json"))):
+                logtype.append(type.get('sourcetype'))
+                data_percentage.append(type.get('percentage'))
+                total_count = type.get('totalcount')
+        red.publish('logstream', json.dumps({"data":total_count, "logtype":logtype, "dataset":data_percentage}))
         message = logdata_channel.get_message()
         if message:
             msg = dict(message)
             yield f'data:{msg.get('data')}\n\n'
-        time.sleep(3)
+        time.sleep(initial_time)
+        initial_time = 60
 
 def get_listresponse():
     channel = red.pubsub(ignore_subscribe_messages=True)
@@ -147,14 +170,12 @@ def load_config():
 
 def publish_newlist():
     case_data, client_data = generate_list()
-    time.sleep(0.5)
+    time.sleep(0.7)
     red.publish('case_client', json.dumps({"cases":case_data, "clients":client_data}))
 
 @shared_task(ignore_result=False)
 def process_data(filepath, cid) -> str:
-    time.sleep(30)
-    with open('./test/test.txt') as f:
-        text_data = f.read()
+    model_url = Uploader(filepath)
     with open('./test/message.json') as file:
         json_data = json.load(file)
     db.session.execute(update(Cases), [{"case_id":uuid.UUID(cid),"transcript":text_data,"parsed_res":json_data}])
@@ -367,7 +388,7 @@ def download(cid):
 
 @app.route("/datastream")
 def datastream():
-    return Response(logdata_stream(), mimetype="text/event-stream")
+    return Response(logdata_stream(query), mimetype="text/event-stream")
 
 @app.route("/casestream")
 def casestream():
@@ -382,9 +403,10 @@ def initialize():
 def get_chartdata(cid):
     with app.app_context():
         state_id = db.session.execute(select(Cases.analysis_process).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+        transcript_loaded = db.session.execute(select(Cases.transcript).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
         status = AsyncResult(state_id)
     while True:
-        if status.ready():
+        if status.ready() or transcript_loaded is not None:
             with app.app_context():
                 json_data = db.session.execute(select(Cases.parsed_res).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
                 result_pack = db.session.execute(select(Cases.transcript, Cases.parsed_res).where(Cases.case_id == uuid.UUID(cid))).one_or_none()
@@ -396,7 +418,7 @@ def get_chartdata(cid):
                     chartdata[data.get('source')] += 1
             red.publish(cid, json.dumps({"transcript":result_pack[0],"json_data":result_pack[1]}))
             return json.dumps(chartdata)
-        time.sleep(1)
+        time.sleep(0.01)
         
 
 @app.route("/check_status/<cid>")
