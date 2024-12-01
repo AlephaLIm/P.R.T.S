@@ -18,6 +18,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import text, create_engine
 from werkzeug.utils import secure_filename
 from modelapi import Uploader
+from orchestration import splunk_connection
 import splunklib.client as client
 import splunklib.results as results
 class Base(DeclarativeBase):
@@ -175,10 +176,14 @@ def publish_newlist():
 
 @shared_task(ignore_result=False)
 def process_data(filepath, cid) -> str:
-    model_url = Uploader(filepath)
-    with open('./test/message.json') as file:
-        json_data = json.load(file)
-    db.session.execute(update(Cases), [{"case_id":uuid.UUID(cid),"transcript":text_data,"parsed_res":json_data}])
+    print(filepath)
+    #model_url = Uploader(filepath)
+    result_tup = splunk_connection('yes', os.path.basename(filepath))
+    if result_tup is not None:
+        transcript = result_tup[0]
+        json_data = json.loads(result_tup[1])
+        print(type(json_data))
+    db.session.execute(update(Cases), [{"case_id":uuid.UUID(cid),"transcript":transcript,"parsed_res":json_data}])
     db.session.commit()
     return 'COMPLETED'
 

@@ -3,34 +3,37 @@ import splunklib.results as results
 import json
 from modelapi import ModelResponder, ModelRequester
 
-def generate_splunk_query(URL,videoname):
+applications = ["chrome", "firefox", "outlook", "word", "powerpoint", "edge", "excel"]
+
+def generate_splunk_query(url,videoname):
     
     try:
-        userprompt = "identify the application ran in this video and generate aa detailed description of the video"
-        applications = ["google","whatsapp","gmail","firefox"]
-        session_hash=ModelRequester(url, videoname, userprompt)
-        transcript=ModelResponder(session_hash)
-        software_used=[app for app in applications if app.lower() in transcript.lower()]
-        # Map options to their respective Splunk queries
-        splunk_queries = f"search {software_used} | head 50"
+        identifyApplicationPrompt = "List all the software and programs that were open in the screen recording. format ym•r response so that it onty shows 1 software or program per line"
+        applicationSessionHash = ModelRequester(url, videoname, identifyApplicationPrompt)
+        applicationTranscript = ModelResponder(applicationSessionHash)
+        softwareUsed = [app for app in applications if app.lower() in applicationTranscript.lower()]
+    
+        transcriptPrompt = "Generate a detailed transcript of the video"
+        descriptionSessionHash=ModelRequester(url, videoname, transcriptPrompt)
+        descriptionTranscript=ModelResponder(descriptionSessionHash)
 
-        # Generate the Splunk query based on the option
-        if input_json in splunk_queries:
-            query = splunk_queries[input_json]
-            print(f"Generated Splunk Query: {query}")
-            return query,transcript
+        if len(softwareUsed) != 0:
+            splunk_query = f"search index=* "
+            for app in softwareUsed:
+                splunk_query += f"Process_Name=*{app}.exe OR "
+            splunk_query += "head 50"
+
+            return splunk_query, descriptionTranscript
         else:
-            print("Invalid option. Please choose a valid application.")
-            return None
+            return "", descriptionTranscript
     except json.JSONDecodeError:
         print("Invalid JSON input. Please provide a valid JSON object.")
         return None     
 
-def splunk_connection():
+def splunk_connection(URL, videoname):
     try:
-        
         # Connect to Splunk
-        service = client.connect(
+        service2 = client.connect(
             host='10.5.18.200',  
             port=8089,                     
             username = "admin",
@@ -38,7 +41,7 @@ def splunk_connection():
         )
         
         query,transcript = generate_splunk_query(URL,videoname)
-        job = service.jobs.create(query)
+        job = service2.jobs.create(query)
 
         # Wait for the job to complete
         while not job.is_done():
@@ -49,9 +52,13 @@ def splunk_connection():
         output_data = {}
         if len(all_results) == 0:
             print("no output")
+            return None
         else:
             for i, result in enumerate(all_results, start=1):
                 output_data[f"Object {i}"] = result  
             #output_data["Summary"] = {"Total Objects": len(list(all_results))}               
             json_data = json.dumps(output_data,indent=4)
             return transcript,json_data
+    except Exception as e:
+        print(f"Failed to connect to Splunk: {e}")
+        return None
