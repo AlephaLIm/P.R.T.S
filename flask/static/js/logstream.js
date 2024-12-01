@@ -40,21 +40,6 @@ $("document").ready(function(){
 
     var piechart = new Chart(document.getElementById('piechart'), pieconfig)
 
-    var source = new EventSource('/datastream');
-    source.onmessage = function(event) {
-        var e = JSON.parse(event.data.substring(2, event.data.length - 1));
-        var newdata = JSON.parse(e.data);
-        let newdatetime = new Date().toLocaleTimeString();
-        linegraph.data.labels.shift();
-        linegraph.data.labels.push(newdatetime);
-        linegraph.data.datasets[0].data.shift();
-        linegraph.data.datasets[0].data.push(newdata);
-        linegraph.update();
-
-        piechart.data.datasets[0].data = e.logtype;
-        piechart.update();
-    }
-
     const xhttp = new XMLHttpRequest();
     xhttp.open('GET', '/initialize', true);
     xhttp.send();
@@ -110,5 +95,23 @@ $("document").ready(function(){
         });
     };
 
+    var source = new EventSource('/datastream');
+    source.onmessage = function(event) {
+        var e = JSON.parse(event.data.substring(2, event.data.length - 1));
+        var newdata = JSON.parse(e.data);
+        let newdatetime = new Date().toLocaleTimeString();
+        linegraph.data.labels.shift();
+        linegraph.data.labels.push(newdatetime);
+        linegraph.data.datasets[0].data.shift();
+        linegraph.data.datasets[0].data.push(newdata);
+        linegraph.update();
+
+        piechart.data.labels = e.logtype;
+        piechart.data.datasets[0].data = e.dataset;
+        piechart.data.datasets[0].backgroundColor = palette('tol', e.dataset.length).map(function(hex) {
+            return '#' + hex;
+        });
+        piechart.update();
+    }
 
 });

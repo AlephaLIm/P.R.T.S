@@ -75,6 +75,7 @@ $("document").ready(function() {
                     data.push(types[item]);
                 })
                 generateChart(keys, data);
+                resolver();
             }
         }
         xhttp.open('GET', '/get_chartdata/' + cid, true);
@@ -82,8 +83,8 @@ $("document").ready(function() {
     }
 
     cid = document.querySelector('#title_h1 p').innerHTML;
-    call_for_chart(cid);
     collapsible_listeners();
+    call_for_chart(cid);
 
     if (document.getElementsByClassName('empty') != null) {
         var refresh = new EventSource('/check_status/' + cid);
@@ -119,34 +120,37 @@ $("document").ready(function() {
         }
     }
 
-    $("#resolved_status").on("click", function(event) {
-        const dataHeaders = new Headers();
-        dataHeaders.append("Content-Type", "application/json");
-        let json_body;
-        if (event.currentTarget.innerHTML === 'Open') {
-            json_body = { action:"resolve" }
-        }
-        else {
-            json_body = { action:"open" }
-        }
-        res = fetch(('/case/' + cid), {
-            method: 'POST',
-            body: JSON.stringify(json_body),
-            headers: dataHeaders
-        }).then(function(response) {
-            return response.json();
-        }).then(function(json) {
-            document.querySelector('#resolved_date').innerHTML ='Date Resolved: ' + json.resolved;
-            if (json.resolved != 'None') {
-                document.querySelector('#resolved').innerHTML = 'Resolved: Yes';
-                document.querySelector('#resolved_status').innerHTML = 'Closed';
-                check_status();
+    function resolver() {
+        $("#resolved_status").on("click", function(event) {
+            const dataHeaders = new Headers();
+            dataHeaders.append("Content-Type", "application/json");
+            let json_body;
+            if (event.currentTarget.innerHTML === 'Open') {
+                json_body = { action:"resolve" }
             }
             else {
-                document.querySelector('#resolved').innerHTML = 'Resolved: No';
-                document.querySelector('#resolved_status').innerHTML = 'Open';
-                check_status();
+                json_body = { action:"open" }
             }
+            res = fetch(('/case/' + cid), {
+                method: 'POST',
+                body: JSON.stringify(json_body),
+                headers: dataHeaders
+            }).then(function(response) {
+                return response.json();
+            }).then(function(json) {
+                document.querySelector('#resolved_date').innerHTML ='Date Resolved: ' + json.resolved;
+                if (json.resolved != 'None') {
+                    document.querySelector('#resolved').innerHTML = 'Resolved: Yes';
+                    document.querySelector('#resolved_status').innerHTML = 'Closed';
+                    
+                    check_status();
+                }
+                else {
+                    document.querySelector('#resolved').innerHTML = 'Resolved: No';
+                    document.querySelector('#resolved_status').innerHTML = 'Open';
+                    check_status();
+                }
+            });
         });
-    });
+    }
 });
