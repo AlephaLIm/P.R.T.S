@@ -176,13 +176,13 @@ def publish_newlist():
 
 @shared_task(ignore_result=False)
 def process_data(filepath, cid) -> str:
-    print(filepath)
-    #model_url = Uploader(filepath)
-    result_tup = splunk_connection('yes', os.path.basename(filepath))
+    model_url = Uploader(filepath)
+    result_tup = splunk_connection(model_url, os.path.basename(filepath))
     if result_tup is not None:
         transcript = result_tup[0]
         json_data = json.loads(result_tup[1])
-        print(type(json_data))
+    else: 
+        return 'INCOMPLETE'
     db.session.execute(update(Cases), [{"case_id":uuid.UUID(cid),"transcript":transcript,"parsed_res":json_data}])
     db.session.commit()
     return 'COMPLETED'
