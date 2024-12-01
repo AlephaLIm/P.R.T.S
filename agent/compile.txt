@@ -1,0 +1,1 @@
+cl /EHsc /std:c++17 /I"include" main.cpp Logger.cpp HttpClient.cpp Configuration.cpp VideoRecorder.cpp EventMonitor.cpp pugixml.cpp /link /out:agent.exe wevtapi.lib user32.lib winhttp.lib
