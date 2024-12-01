@@ -1,5 +1,7 @@
 #pyvenv.cfg
 pyvenv.cfg
+*.exe
+*.obj
 
 # Logs
 logs
