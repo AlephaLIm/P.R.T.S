@@ -75,20 +75,23 @@ FFmpeg is required for the Agent to function, and needs to be installed and acce
 The Windows Event Collector service must be running for Event Subscriptions to work. It can be enabled by either going into Event Viewer and clicking on Subscriptions, and then clicking yes on the dialog that appears. 
 
 Alternatively, it can be enabled using GPO or Powershell.
->wecutil qc
-
+```cmd
+wecutil qc
+```
 ##  Compiling Agent from source code
 
 Navigate to the agent directory in the P.R.T.S repository. From there, use the following command to compile the code.
-> cd agent
-
->cl /EHsc /std:c++17 /I"include" /Fo"bin\\" /Fe"bin\\agent.exe" main.cpp Logger.cpp HttpClient.cpp Configuration.cpp VideoRecorder.cpp EventMonitor.cpp pugixml.cpp /link wevtapi.lib user32.lib winhttp.lib
+```cmd
+cd agent
+cl /EHsc /std:c++17 /I"include" /Fo"bin\\" /Fe"bin\\agent.exe" main.cpp Logger.cpp HttpClient.cpp Configuration.cpp VideoRecorder.cpp EventMonitor.cpp pugixml.cpp /link wevtapi.lib user32.lib winhttp.lib
+```
 
 After compiling the code, you should see the compiled executable in the *bin* directory
 ## Running the Agent
 
 The Agent can be ran using the following command
->agent.exe [host] [port]
-
+```cmd
+agent.exe [host] [port]
+```
 Host and Port should reflect where the API Endpoints of the Control Server
 
