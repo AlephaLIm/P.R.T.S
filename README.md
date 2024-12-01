@@ -63,11 +63,6 @@ Then, in a separate terminal, run the app:
 python app.py
 ```
 
-# P.R.T.S User Manual
-
-This README serves as a user manual for P.R.T.S, which will explain how to set up and configre each component.
-
-
 # Agent
 
 The Agent is responsible for handling event monitoring and screen recording, and thereafter sending the relevant files to the Control Server. It has been tested to work on Windows 10 and Windows 11. There is no support for other operating systems.
