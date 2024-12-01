@@ -408,6 +408,8 @@ def initialize():
 def get_chartdata(cid):
     with app.app_context():
         state_id = db.session.execute(select(Cases.analysis_process).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
+        if state_id is None:
+            state_id = db.session.execute(select(Cases.analysis_process).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
         transcript_loaded = db.session.execute(select(Cases.transcript).where(Cases.case_id == uuid.UUID(cid))).scalar_one()
         status = AsyncResult(state_id)
     while True:

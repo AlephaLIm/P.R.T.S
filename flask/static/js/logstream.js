@@ -108,6 +108,9 @@ $("document").ready(function(){
 
         piechart.data.labels = e.logtype;
         piechart.data.datasets[0].data = e.dataset;
+        piechart.data.datasets[0].backgroundColor = palette('tol', e.dataset.length).map(function(hex) {
+            return '#' + hex;
+        });
         piechart.update();
     }
 

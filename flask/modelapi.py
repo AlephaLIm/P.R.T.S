@@ -67,21 +67,3 @@ def ModelResponder(session_hash):
             elif(eventData["success"] == False):
                 print(f'Output Prompt: {eventData}')
                 return eventData
-
-'''
-input_video = gr.Video(label="Upload Video for Processing", autoplay=True)
-input_textbox = gr.Text(label="Input Prompt")
-output_textbox = gr.Text(label="Generated Output")
-
-def HandleInputs(uservideo, userprompt):
-    path = "/home/ubuntu/temps/" + os.path.basename(uservideo)
-    shutil.copyfile(uservideo, path)
-    url = Uploader(path)
-    session_hash = ModelRequester(url, os.path.basename(uservideo), userprompt)
-    output = ModelResponder(session_hash)
-    #output = json.loads("""{"msg":"process_completed","event_id":"43575b2e5a874e9d822f5af50852924c","output":{"data":["The video begins with a desktop screen showing a serene image of a wooden pier extending into a calm body of water under a dramatic sky filled with clouds. The desktop has several icons, including folders and applications, and the taskbar at the bottom shows the time as 12:03 PM on a Monday. The scene transitions to a web browser window where the user types 'eicar' into the address bar, leading to a Google search page displaying various links related to 'EICAR'. The user clicks on one of the links, which opens a webpage titled 'EICAR Anti-Malware Testfile' from eicar.org. The webpage explains that the EICAR Anti-Malware Testfile is a test file used by anti-virus software to evaluate their detection capabilities. The user then navigates to the 'Download Area' section of the website, which offers different versions of the test file for download. The user selects the 'EICAR COM' version and clicks the 'Download' button.\\n\\nThe video continues with the user downloading the 'EICAR COM' test file. The file is saved in the 'Downloads' folder on the desktop. A notification appears indicating that the download was successful. The user then opens the downloaded file, which opens a 'Symantec Protection Results' window displaying various categories such as 'Malware', 'Trojan', 'Spyware', 'Rootkit', 'Adware', and 'Logic', all marked as 'Clean'. The user clicks the 'Close' button on the 'Symantec Protection Results' window.\\n\\nThe final part of the video shows the 'Symantec Protection Results' window again, with the same categories marked as 'Clean'. The user clicks the 'Close' button once more, and the video concludes with the desktop screen showing the 'Downloads' folder containing the 'EICAR COM' file."],"is_generating":false,"duration":41.85723829269409,"average_duration":20.785076398494816,"render_config":null,"changed_state_ids":[]},"success":true,"title":null}""")
-    return output
-
-demo.launch(share=False, server_name="10.5.18.200", server_port=52300)
-#Generate a detailed description of the video
-'''
